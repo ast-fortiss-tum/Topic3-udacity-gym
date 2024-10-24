@@ -12,7 +12,8 @@ if __name__ == '__main__':
     host = "127.0.0.1"
     port = 4567
     # simulator_exe_path = "/home/banana/projects/self-driving-car-sim/Builds/udacity_linux.x86_64"
-    simulator_exe_path = "/home/banana/projects/urp-sim/Builds/udacity-sim-linux.x86_64"
+    simulator_exe_path = "../builds/udacity.x86_64"
+    assert pathlib.Path(simulator_exe_path).exists(), f"Simulator binary not found at {simulator_exe_path}"
 
     # Track settings
     track = "lake"
