@@ -11,9 +11,8 @@ if __name__ == '__main__':
     # Configuration settings
     host = "127.0.0.1"
     port = 4567
-    print(f"current path {pathlib.Path().absolute()}")
-    simulator_exe_path = "./../builds/udacity.x86_64"
-    assert pathlib.Path(simulator_exe_path).exists(), f"Simulator binary does not exists. Check if the path is correct. {simulator_exe_path}"
+    simulator_exe_path = "/home/banana/projects/self-driving-car-sim/Builds/udacity_linux.x86_64"
+
     # Track settings
     track = "lake"
     daytime = "day"

@@ -34,6 +34,3 @@ pip-delete-this-directory.txt
 .cache
 nosetests.xml
 coverage.xml
-*.pyc
-*log.txt
-/udacity_gym/__pycache__
