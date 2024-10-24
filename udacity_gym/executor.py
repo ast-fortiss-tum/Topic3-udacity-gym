@@ -62,12 +62,13 @@ class UdacityExecutor:
             print("Front facing camera image UnidentifiedImageError.")
             input_image = None
 
-        try:
+        """try:
             semantic_segmentation = Image.open(BytesIO(base64.b64decode(data["semantic_segmentation"])))
         except PIL.UnidentifiedImageError:
             print("Segmentation camera image UnidentifiedImageError.")
-            semantic_segmentation = None
-
+            semantic_segmentation = None"""
+        semantic_segmentation = None
+        
         observation = UdacityObservation(
             input_image=input_image,
             semantic_segmentation=semantic_segmentation,
