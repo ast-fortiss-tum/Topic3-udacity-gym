@@ -68,7 +68,7 @@ class UdacityExecutor:
             print("Segmentation camera image UnidentifiedImageError.")
             semantic_segmentation = None"""
         semantic_segmentation = None
-        
+
         observation = UdacityObservation(
             input_image=input_image,
             semantic_segmentation=semantic_segmentation,
