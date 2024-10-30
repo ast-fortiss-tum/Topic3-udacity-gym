@@ -2,14 +2,26 @@
 from multiprocessing import Manager
 from .action import UdacityAction
 
-# Initialize the Manager globally
-manager = Manager()
+# Lazy initialization of Manager and simulator_state
+_manager = None
+_simulator_state = None
 
-# Initialize the shared simulator state dictionary
-simulator_state = manager.dict()
-simulator_state['observation'] = None
-simulator_state['action'] = UdacityAction(0.0, 0.0)
-simulator_state['paused'] = False
-simulator_state['track'] = "lake"
-simulator_state['events'] = []
-simulator_state['episode_metrics'] = None
+def get_manager():
+    global _manager
+    if _manager is None:
+        _manager = Manager()
+    return _manager
+
+def get_simulator_state():
+    global _simulator_state
+    if _simulator_state is None:
+        manager = get_manager()
+        _simulator_state = manager.dict({
+            'observation': None,
+            'action': UdacityAction(0.0, 0.0),
+            'paused': False,
+            'track': "lake",
+            'events': [],
+            'episode_metrics': None
+        })
+    return _simulator_state

@@ -2,7 +2,7 @@ import copy
 import pathlib
 import time
 # from multiprocessing import Manager
-from .global_manager import simulator_state
+from .global_manager import get_simulator_state
 
 from .action import UdacityAction
 from .logger import CustomLogger
@@ -30,7 +30,7 @@ class UdacitySimulator:
         # Simulator logging
         self.logger = CustomLogger(str(self.__class__))
         # Simulator state
-        self.sim_state = simulator_state
+        self.sim_state = get_simulator_state()
 
         # Verify binary location
         if not pathlib.Path(sim_exe_path).exists():

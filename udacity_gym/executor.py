@@ -46,8 +46,8 @@ class UdacityExecutor:
         # Simulator logging
         self.logger = CustomLogger(str(self.__class__))
         # Simulator
-        from .simulator import simulator_state
-        self.sim_state = simulator_state
+        from .simulator import get_simulator_state
+        self.sim_state = get_simulator_state()
         # Manage connection in separate process
         self.client_thread = Process(target=self._start_server)
         self.client_thread.daemon = True
