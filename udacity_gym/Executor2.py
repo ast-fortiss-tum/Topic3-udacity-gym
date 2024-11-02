@@ -13,8 +13,9 @@ from PIL import Image, UnidentifiedImageError
 from .action import UdacityAction
 from .logger import CustomLogger
 from .observation import UdacityObservation
+import socket
 
-
+#TODO: More updates when the server side is ready to handle connections
 class UdacityExecutor:
     # TODO: avoid cycles
 
@@ -45,6 +46,7 @@ class UdacityExecutor:
     def connect(self):
         self.logger.info("Trying to Connect to the server")
         try:
+            self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.client_socket.connect((self.host, self.port))
             self.logger.info(f"Connected to server at {self.host}:{self.port}")
             threading.Thread(target=self.listen_for_messages, daemon=True).start()
