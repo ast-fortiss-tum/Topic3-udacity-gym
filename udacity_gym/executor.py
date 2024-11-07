@@ -1,171 +1,201 @@
 import base64
+import io
+import socket
+import threading
+import json
 import time
-from io import BytesIO
-from multiprocessing import Process
-from threading import Thread
 
-import PIL
-import eventlet
-eventlet.monkey_patch()
-import numpy as np
 from PIL import Image
-from flask import Flask
-from flask_socketio import SocketIO
 
-from .action import UdacityAction
-from .logger import CustomLogger
-from .observation import UdacityObservation
+from udacity_gym.action import UdacityAction
+from udacity_gym.observation import UdacityObservation
+from udacity_gym.logger import CustomLogger
+from udacity_gym.global_manager import get_simulator_state
+from udacity_gym.agent import PIDUdacityAgent
+
 
 class UdacityExecutor:
-    # TODO: avoid cycles
-
-    def __init__(
-            self,
-            host: str = "127.0.0.1",
-            port: int = 4567,
-    ):
-        # Simulator network settings
+    def __init__(self, host='127.0.0.1'):
         self.host = host
-        self.port = port
-        self.app = Flask(__name__)
-        self.sio = SocketIO(
-            self.app,
-            async_mode='eventlet',
-            cors_allowed_origins="*",
-            transports=['websocket'],
-        )
-        # Socket IO callbacks
-        self.sio.on('connect')(self.on_connect)
-        self.sio.on('car_telemetry')(self.on_telemetry)
-        self.sio.on('episode_metrics')(self.on_episode_metrics)
-        self.sio.on('episode_events')(self.on_episode_events)
-        self.sio.on('episode_event')(self.on_episode_event)
-        self.sio.on('sim_paused')(self.on_sim_paused)
-        self.sio.on('sim_resumed')(self.on_sim_resumed)
 
-        # Simulator logging
-        self.logger = CustomLogger(str(self.__class__))
-        # Simulator
-        from .simulator import get_simulator_state
+        """If Running in Unity"""
+        # self.command_port = 55001
+        # self.telemetry_port = 56042
+
+        """If Running the Build"""
+        self.command_port = 55002
+        self.telemetry_port = 56043
+
+        self.command_sock = None
+        self.telemetry_sock = None
         self.sim_state = get_simulator_state()
-        # Manage connection in separate process
-        self.client_thread = Process(target=self._start_server)
-        self.client_thread.daemon = True
+        self.logger = CustomLogger(str(self.__class__))
+        self.buffer = ''
+        self.agent = PIDUdacityAgent(kp=0.05, kd=0.8, ki=0.000001)
+        self.telemetry_lock = threading.Lock()
+
+    def connect_to_server(self):
+        """Versucht, sich mit einem der Server zu verbinden (Editor oder Build)."""
+        # Versuche, eine Verbindung zu den Command-Server-Ports herzustellen
+        timeout = 60
+        start_time = time.time()
+        while time.time() - start_time < timeout and (not self.command_sock or not self.telemetry_sock) :
+
+            try:
+                self.command_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.command_sock.connect((self.host, self.command_port))
+                print(f"Verbunden mit dem Command-Server auf {self.host}:{self.command_port}.")
+
+
+
+            except Exception as e:
+                print(f"Fehler beim Verbinden mit dem Command-Server auf Port {self.command_port}: {e}")
+                self.command_sock = None
+
+            # Versuche, eine Verbindung zu den Telemetry-Server-Ports herzustellen
+
+
+            try:
+                self.telemetry_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.telemetry_sock.connect((self.host, self.telemetry_port))
+                print(f"Verbunden mit dem Telemetry-Server auf {self.host}:{self.telemetry_port}.")
+
+
+
+            except Exception as e:
+                print(f"Fehler beim Verbinden mit dem Telemetry-Server auf Port {self.telemetry_port}: {e}")
+                self.telemetry_sock = None
+
+            # Überprüfe, ob eine Verbindung hergestellt wurde
+            if not self.command_sock or not self.telemetry_sock:
+                print("Konnte keine Verbindung zu beiden Servern herstellen.")
+                self.close()
+                time.sleep(2)
+
+    def send_message(self, message):
+        """Sendet eine Nachricht über den Command-Socket."""
+        if self.command_sock:
+            try:
+                data = json.dumps(message).encode('utf-8') + b'\n'
+                self.command_sock.sendall(data)
+                self.logger.info(f"Gesendete Nachricht: {message}")
+            except Exception as e:
+                self.logger.error(f"Fehler beim Senden von Befehlen: {e}")
+                self.close()
+
+    def receive_messages(self):
+        """Empfängt Nachrichten vom Telemetry-Socket."""
+        if not self.telemetry_sock:
+            self.logger.error("Telemetry-Socket ist nicht verbunden.")
+            return
+
+        try:
+            while True:
+                data = self.telemetry_sock.recv(4096).decode('utf-8')
+                if not data:
+                    self.logger.warning("Keine Daten empfangen. Telemetry-Verbindung wird geschlossen.")
+                    break
+                self.buffer += data
+                while '\n' in self.buffer:
+                    line, self.buffer = self.buffer.split('\n', 1)
+                    try:
+                        message = json.loads(line)
+                        self.handle_message(message)
+                    except json.JSONDecodeError as e:
+                        self.logger.error(f"Fehler beim Dekodieren der JSON-Daten: {e}")
+        except Exception as e:
+            self.logger.error(f"Fehler beim Empfangen von Telemetriedaten: {e}")
+        finally:
+            self.close()
+
+    def handle_message(self, message):
+        """Verarbeitet empfangene Telemetriedaten."""
+        if "steering_angle" in message and "throttle" in message:
+            self.on_telemetry(message)
+        else:
+            self.logger.warning(f"Unbekannte Nachricht erhalten: {message}")
 
     def on_telemetry(self, data):
-
-        # self.logger.info(f"Received data from udacity client: {data}")
-        # TODO: check data image, verify from sender that is not empty
+        """Verarbeitet Telemetriedaten und sendet Steuerbefehle."""
         try:
-            input_image = Image.open(BytesIO(base64.b64decode(data["image"])))
-        except PIL.UnidentifiedImageError:
-            print("Front facing camera image UnidentifiedImageError.")
-            input_image = None
+            image_base64 = data.get("image", "")
+            if image_base64:
+                image_bytes = base64.b64decode(image_base64)
+                image = Image.open(io.BytesIO(image_bytes))
+            else:
+                image = None
 
-        """try:
-            semantic_segmentation = Image.open(BytesIO(base64.b64decode(data["semantic_segmentation"])))
-        except PIL.UnidentifiedImageError:
-            print("Segmentation camera image UnidentifiedImageError.")
-            semantic_segmentation = None"""
-        semantic_segmentation = None
-
-        observation = UdacityObservation(
-            input_image=input_image,
-            semantic_segmentation=semantic_segmentation,
-            position=(float(data["pos_x"]), float(data["pos_y"]), float(data["pos_z"])),
-            steering_angle=float(self.sim_state.get('action', None).steering_angle),
-            throttle=float(self.sim_state.get('action', None).throttle),
-            lap=int(data['lap']),
-            sector=int(data['sector']),
-            speed=float(data["speed"]) * 3.6,  # conversion m/s to km/h
-            cte=float(data["cte"]),
-            next_cte=float(data["next_cte"]),
-            time=int(time.time() * 1000)
-        )
-        self.sim_state['observation'] = observation
-
-        # Sending control
-        self.send_control()
-
-        if self.sim_state.get('paused', False):
-            self.send_pause()
-        else:
-            self.send_resume()
-        track_info = self.sim_state.get('track', None)
-        if track_info:
-            track, weather, daytime = track_info['track'], track_info['weather'], track_info['daytime']
-            self.send_track(track, weather, daytime)
-            self.sim_state['track'] = None
-
-    def on_connect(self):
-        self.logger.info("Udacity client connected")
-        track_info = self.sim_state.get('track', None)
-        # TODO: do it in a better way
-        while not track_info:
-            time.sleep(1)
-            track_info = self.sim_state.get('track', None)
-        track, weather, daytime = track_info['track'], track_info['weather'], track_info['daytime']
-        self.send_track(track, weather, daytime)
-        self.sim_state['track'] = None
-
-    def on_sim_paused(self, data):
-        self.sim_state['sim_state'] = 'paused'
-
-    def on_sim_resumed(self, data):
-        # TODO: change 'running' with ENUM
-        self.sim_state['sim_state'] = 'running'
-
-    def on_episode_metrics(self, data):
-        self.logger.info(f"episode metrics {data}")
-        self.sim_state['episode_metrics'] = data
-
-    def on_episode_events(self, data):
-        self.logger.info(f"episode events {data}")
-        self.sim_state['events'] += [data]
-
-    def on_episode_event(self, data):
-        self.logger.info(f"episode event {data}")
-        self.sim_state['events'] += [data]
-
-    def send_control(self) -> None:
-        # self.logger.info(f"Sending control")
-        action: UdacityAction = self.sim_state.get('action', None)
-        if action:
-            self.sio.emit(
-                "action",
-                data={
-                    "steering_angle": action.steering_angle.__str__(),
-                    "throttle": action.throttle.__str__(),
-                },
-                skip_sid=True,
+            observation = UdacityObservation(
+                input_image=image,
+                semantic_segmentation=None,
+                position=(float(data["pos_x"]), float(data["pos_y"]), float(data["pos_z"])),
+                steering_angle=float(data.get("steering_angle", 0.0)),
+                throttle=float(data.get("throttle", 0.0)),
+                lap=int(data.get('lap', 0)),
+                sector=int(data.get('sector', 0)),
+                speed=float(data.get("speed", 0.0)) * 3.6,  # m/s zu km/h
+                cte=float(data.get("cte", 0.0)),
+                next_cte=float(data.get("next_cte", 0.0)),
+                time=int(time.time() * 1000)
             )
-            eventlet.sleep(0)
+            print(f"Geschwindigkeit: {observation.speed} km/h")
+            self.sim_state['observation'] = observation
+            action = self.agent(observation)
+            # action = UdacityAction(steering_angle=-0.1, throttle=0.5)
+            self.sim_state['action'] = action
+            self.sim_state['sim_state'] = 'running'
 
-    def send_pause(self):
-        self.sio.emit("pause_sim", skip_sid=True)
+            # Senden der Steuerbefehle
+            self.send_control()
+        except Exception as e:
+            self.logger.error(f"Fehler beim Verarbeiten der Telemetriedaten: {e}")
 
-    def send_resume(self):
-        self.sio.emit("resume_sim", skip_sid=True)
+    def send_control(self):
+        """Sendet Steuerbefehle an den Simulator."""
+        action = self.sim_state.get('action', None)
+        if action:
+            control_data = {
+                "command": "send_control",
+                "steering_angle": action.steering_angle,
+                "throttle": action.throttle,
+            }
+            self.send_message(control_data)
 
-    def send_track(self, track, weather, daytime):
-        self.sio.emit("end_episode", skip_sid=True)
-        self.sio.emit("start_episode", data={
-            "track_name": track,
-            "weather_name": weather,
-            "daytime_name": daytime,
-        }, skip_sid=True)
+    def listen_for_telemetry(self):
+        """Startet den Telemetry-Listener in einem separaten Thread."""
+        telemetry_thread = threading.Thread(target=self.receive_messages, daemon=True)
+        telemetry_thread.start()
+
+    def send_commands_thread(self):
+        """Optional: Ein separater Thread zum kontinuierlichen Senden von Befehlen."""
+        # Dies kann genutzt werden, um kontinuierlich Befehle zu senden, falls erforderlich
+        pass  # Hier kann zusätzliche Logik hinzugefügt werden
 
     def start(self):
-        # Start Socket IO Server in separate thread
-        self.client_thread.start()
+        """Startet die Verbindungen und Threads."""
+        self.connect_to_server()
+        self.listen_for_telemetry()
+        # Starte einen optionalen Thread zum Senden von Befehlen
+        # send_commands_thread = threading.Thread(target=self.send_commands_thread, daemon=True)
+        # send_commands_thread.start()
 
-    def _start_server(self):
-        self.sio.run(self.app, host=self.host, port=self.port)
+        # Verhindern, dass das Skript sofort beendet wird
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            self.close()
+            print("Skript beendet.")
 
     def close(self):
-        self.sio.stop()
+        if self.command_sock:
+            self.command_sock.close()
+        if self.telemetry_sock:
+            self.telemetry_sock.close()
 
 
 if __name__ == '__main__':
+    print("running")
     sim_executor = UdacityExecutor()
     sim_executor.start()
+    print("started")

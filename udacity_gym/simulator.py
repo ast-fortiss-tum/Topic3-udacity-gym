@@ -24,7 +24,7 @@ class UdacitySimulator:
         self.sim_process = UnityProcess()
         # Simulator network settings
         from .executor import UdacityExecutor
-        self.sim_executor = UdacityExecutor(host, port)
+        self.sim_executor = UdacityExecutor(host)
         self.host = host
         self.port = port
         # Simulator logging
