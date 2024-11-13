@@ -4,6 +4,8 @@ import socket
 import threading
 import json
 import time
+import csv
+import pathlib
 
 from PIL import Image
 
@@ -11,20 +13,17 @@ from udacity_gym.observation import UdacityObservation
 from udacity_gym.logger import CustomLogger
 from udacity_gym.global_manager import get_simulator_state
 
-class UdacityExecutor:
-    def __init__(self, host='127.0.0.1'):
+class UdacityExecutorAlt:
+    def __init__(
+            self,
+            host: str ='127.0.0.1',
+            command_port: int = 55002,
+            telemetry_port: int = 56043,
+    ):
         """Initializes the executor with host and ports for command and telemetry connections."""
         self.host = host
-
-        # Ports for Unity or Build version
-        # If running in Unity:
-        # self.command_port = 55001
-        # self.telemetry_port = 56042
-
-        # If running the Build:
-        self.command_port = 55002
-        self.telemetry_port = 56043
-
+        self.command_port = command_port
+        self.telemetry_port = telemetry_port
         self.command_sock = None
         self.telemetry_sock = None
         self.sim_state = get_simulator_state()
@@ -32,6 +31,12 @@ class UdacityExecutor:
         self.buffer = ''
         self.telemetry_lock = threading.Lock()
         self.logger.info("UdacityExecutor initialized.")
+
+        # Initialize CSV for latency logging
+        self.latency_file = f"udacity_dataset_lake_12_12_2\lake_sunny_day\latency_log.csv"
+        with open(self.latency_file, mode='w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["timestamp", "event", "latency"])
 
     def connect_to_server(self):
         """Attempts to connect to the command and telemetry servers within a timeout period."""
@@ -70,13 +75,21 @@ class UdacityExecutor:
                 self.close()
                 time.sleep(2)
 
+    def log_latency(self, event, timestamp):
+        """Logs latency data to a CSV file."""
+        with open(self.latency_file, mode='a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([timestamp, event, time.time() - timestamp])
+
     def send_message(self, message):
         """Sends a message to the command server."""
         self.logger.debug(f"Attempting to send message: {message}")
         if self.command_sock:
             try:
+                timestamp = time.time()
                 data = json.dumps(message).encode('utf-8') + b'\n'
                 self.command_sock.sendall(data)
+                self.log_latency('send', timestamp)
                 self.logger.info(f"Message sent: {message}")
             except Exception as e:
                 self.logger.error(f"Error sending commands: {e}")
@@ -91,11 +104,13 @@ class UdacityExecutor:
         self.logger.info("Starting to receive telemetry data.")
         try:
             while True:
+                timestamp = time.time()
                 data = self.telemetry_sock.recv(4096).decode('utf-8')
                 if not data:
                     self.logger.warning("No data received. Closing telemetry connection.")
                     break
                 self.buffer += data
+                self.log_latency('receive', timestamp)
                 while '\n' in self.buffer:
                     line, self.buffer = self.buffer.split('\n', 1)
                     try:
@@ -188,6 +203,6 @@ class UdacityExecutor:
 
 if __name__ == '__main__':
     print("running")
-    sim_executor = UdacityExecutor()
+    sim_executor = UdacityExecutorAlt()
     sim_executor.start()
     print("started")
