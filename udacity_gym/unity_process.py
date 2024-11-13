@@ -39,7 +39,7 @@ class UnityProcess(object):
         self.process = None
         self.logger = CustomLogger(str(self.__class__))
 
-    def start(self, sim_path: str, port: int, headless: bool = False):
+    def start(self, sim_path: str, command_port: int, telemetry_port: int, events_port:int, headless: bool = False):
         """
         :param sim_path: (str) Path to the executable
         :param headless: (bool)
@@ -53,7 +53,7 @@ class UnityProcess(object):
         file_name = (sim_path.strip().replace('.app', '').replace('.exe', '').replace('.x86_64', '').replace('.x86', ''))
         true_filename = os.path.basename(os.path.normpath(file_name))
         launch_string = None
-        port_args = ["--port", str(port), '-logFile', 'unitylog.txt', '--fps', '10']
+        port_args = ["--command_port", str(command_port), "--telemetry_port", str(telemetry_port), "--events_port", str(events_port), '-logFile', 'unitylog.txt', '--fps', '10']
         platform_ = platform.system()
 
         if platform_.lower() == "linux" and sim_path:
