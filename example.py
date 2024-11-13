@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # simulator_exe_path = "/home/banana/projects/self-driving-car-sim/Builds/udacity_linux.x86_64"
 
     # TCP Port
-    simulator_exe_path = r"C:\Source\Auto\Windows Build 2\self_driving_car_nanodegree_program.exe"
+    simulator_exe_path = r"C:\Source\Auto\Windows Build 3\self_driving_car_nanodegree_program.exe"
 
     # Io Port
     # simulator_exe_path = r"C:\Source\Auto\beta_simulator_windows\beta_simulator.exe"
