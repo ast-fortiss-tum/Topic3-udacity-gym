@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Any, SupportsFloat
+from typing import Optional, Tuple, Any, SupportsFloat, List
 
 import gymnasium as gym
 import numpy as np
@@ -140,6 +140,11 @@ class UdacityGym(gym.Env):
         if mode == "rgb_array":
             return self.simulator.sim_state['observation'].image_array
         return None
+
+    def setothercars(self,
+                     number_of_cars: int = 3,
+                    start_positions: List[int] = None):
+        self.simulator.setothercars(number_of_cars, start_positions)
 
     def observe(self) -> UdacityObservation:
         return self.simulator.observe()

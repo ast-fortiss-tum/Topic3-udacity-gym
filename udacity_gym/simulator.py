@@ -2,7 +2,7 @@ import copy
 import pathlib
 import time
 from enum import Enum
-from typing import Union
+from typing import List, Union
 
 from sympy import true
 
@@ -120,8 +120,6 @@ class UdacitySimulator(AbstractSimulator):
             new_track_name: Union[TrackName, str] = TrackName.LAKE,
             new_weather_name: Union[WeatherName, str] = WeatherName.SUNNY,
             new_daytime_name: Union[DayTimeName, str] = DayTimeName.DAY,
-            number_of_cars: int = 3,
-            start_positions: [] = [0, 5, 10]
     ):
         # Konvertieren von Strings zu Enums, falls nötig
         if isinstance(new_track_name, str):
@@ -176,8 +174,6 @@ class UdacitySimulator(AbstractSimulator):
             new_daytime_name.value,
         )
 
-        self.sim_executor.send_spawn_cars(number_of_cars, start_positions)
-
         # Warten, bis der Simulator bestätigt, dass die Strecke gesetzt wurde
         while not self.sim_state.get('track_set', False):
             self.logger.info("Warte darauf, dass der Simulator die Strecke setzt...")
@@ -187,6 +183,11 @@ class UdacitySimulator(AbstractSimulator):
         self.sim_state['track_set'] = False
 
         return observation, {}
+
+    def setothercars(self,
+                     number_of_cars: int = 3,
+                    start_positions: List[int] = None):
+        self.sim_executor.send_spawn_cars(number_of_cars, start_positions)
 
     def start(self):
         # Starte Unity-Simulationsprozess

@@ -44,74 +44,64 @@ class UdacityExecutor:
         self.buffer = ''
         self.telemetry_lock = threading.Lock()
         self.logger.info("UdacityExecutor initialized.")
+        self.spawn_cars_sent = False
 
     def connect_to_server(self):
         """Attempts to establish connections to the servers."""
         self.logger.info("Attempting to connect to the server.")
         timeout = 60
         start_time = time.time()
-        while time.time() - start_time < timeout and (
-                not self.command_sock or not self.telemetry_sock or not self.events_sock or not self.car_spawner_sock):
-
+        while time.time() - start_time < timeout:
+            all_connected = True
             try:
-                # Connect to the command server
                 if not self.command_sock:
                     self.command_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     self.command_sock.connect((self.host, self.command_port))
                     self.logger.info(f"Connected to the command server at {self.host}:{self.command_port}.")
-                    print(f"Connected to the command server at {self.host}:{self.command_port}.")
-
             except Exception as e:
                 self.logger.error(f"Error connecting to the command server on port {self.command_port}: {e}")
-                print(f"Error connecting to the command server on port {self.command_port}: {e}")
                 self.command_sock = None
+                all_connected = False
 
             try:
-                # Connect to the telemetry server
                 if not self.telemetry_sock:
                     self.telemetry_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     self.telemetry_sock.connect((self.host, self.telemetry_port))
                     self.logger.info(f"Connected to the telemetry server at {self.host}:{self.telemetry_port}.")
-                    print(f"Connected to the telemetry server at {self.host}:{self.telemetry_port}.")
-
             except Exception as e:
                 self.logger.error(f"Error connecting to the telemetry server on port {self.telemetry_port}: {e}")
-                print(f"Error connecting to the telemetry server on port {self.telemetry_port}: {e}")
                 self.telemetry_sock = None
+                all_connected = False
 
             try:
-                # Connect to the event server
                 if not self.events_sock:
                     self.events_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     self.events_sock.connect((self.host, self.events_port))
                     self.logger.info(f"Connected to the event server at {self.host}:{self.events_port}.")
-                    print(f"Connected to the event server at {self.host}:{self.events_port}.")
-
             except Exception as e:
                 self.logger.error(f"Error connecting to the event server on port {self.events_port}: {e}")
-                print(f"Error connecting to the event server on port {self.events_port}: {e}")
                 self.events_sock = None
+                all_connected = False
 
             try:
-                # Connect to the CarSpawner server
                 if not self.car_spawner_sock:
                     self.car_spawner_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     self.car_spawner_sock.connect((self.host, self.car_spawner_port))
                     self.logger.info(f"Connected to CarSpawner server at {self.host}:{self.car_spawner_port}.")
-                    print(f"Connected to CarSpawner server at {self.host}:{self.car_spawner_port}.")
-
             except Exception as e:
                 self.logger.error(f"Error connecting to the CarSpawner server on port {self.car_spawner_port}: {e}")
-                print(f"Error connecting to the CarSpawner server on port {self.car_spawner_port}: {e}")
                 self.car_spawner_sock = None
+                all_connected = False
 
-            if not self.command_sock or not self.telemetry_sock or not self.events_sock or not self.car_spawner_sock:
-                self.logger.warning("Failed to connect to the servers. Retrying...")
-                print("Failed to connect to the servers.")
-                self.close()
-                time.sleep(2)
+            if all_connected:
+                self.logger.info("Successfully connected to all servers.")
+                break
             else:
-                break  # All sockets connected
+                self.logger.warning("Failed to connect to all servers. Retrying in 2 seconds...")
+                time.sleep(2)
+        else:
+            self.logger.error("Failed to connect to servers within timeout period.")
+            self.close()
 
     def send_control(self):
         """Sends control commands to the simulator."""
@@ -284,6 +274,14 @@ class UdacityExecutor:
             # Send control commands
             self.send_control()
 
+            # Spawn cars nach dem ersten Empfang von Telemetriedaten
+            if not self.spawn_cars_sent:
+                self.logger.info("First telemetry received, spawning other cars.")
+                number_of_cars = 2
+                start_positions = [2, 4]
+                self.send_spawn_cars(number_of_cars, start_positions)
+                self.spawn_cars_sent = True  # Setze das Flag auf True, damit die Autos nur einmal gespawnt werden
+
         except Exception as e:
             self.logger.error(f"Error processing telemetry data: {e}")
             return
@@ -303,18 +301,18 @@ class UdacityExecutor:
         self.send_message(resume_message, self.events_sock)
 
     def send_track(self, track, weather, daytime):
-        end_episode_message = {
-            "command": "end_episode"
-        }
+        # end_episode_message = {
+           # "command": "end_episode"
+        # }
         start_episode_message = {
             "command": "start_episode",
             "track_name": track,
             "weather_name": weather,
             "daytime_name": daytime
         }
-        self.logger.debug(f"Prepared end episode message: {end_episode_message}")
+        # self.logger.debug(f"Prepared end episode message: {end_episode_message}")
         self.logger.debug(f"Prepared start episode message: {start_episode_message}")
-        self.send_message(end_episode_message, self.events_sock)
+        # self.send_message(end_episode_message, self.events_sock)
         self.send_message(start_episode_message, self.events_sock)
 
     def send_spawn_cars(self, number_of_cars, start_positions):
@@ -323,6 +321,7 @@ class UdacityExecutor:
             "number_of_cars": number_of_cars,
             "start_positions": start_positions
         }
+        print(f"Prepared spawn cars message: {spawn_cars_message}")
         self.logger.debug(f"Prepared spawn cars message: {spawn_cars_message}")
         self.send_message(spawn_cars_message, self.car_spawner_sock)  # Sende über den neuen Socket
 
@@ -394,7 +393,18 @@ if __name__ == '__main__':
     sim_executor = UdacityExecutor()
     sim_executor.start()
     sim_executor.send_track(track="lake", daytime="day", weather="sunny")
-    sim_executor.send_spawn_cars(2, [2,4])
 
-    time.sleep(50)
-    print("UdacityExecutor started")
+    # Warte, bis der Simulator die Strecke gesetzt hat
+    while not sim_executor.sim_state.get('track_set', False):
+        print("Waiting for the simulator to set the track...")
+        time.sleep(1)
+
+    # Jetzt wird send_spawn_cars in on_telemetry aufgerufen
+
+    try:
+        # Hauptschleife
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        sim_executor.close()
+        print("UdacityExecutor stopped")
