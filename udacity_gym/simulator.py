@@ -4,6 +4,8 @@ import time
 from enum import Enum
 from typing import Union
 
+from sympy import true
+
 from .global_manager import get_simulator_state
 from .action import UdacityAction
 from .logger import CustomLogger
@@ -117,7 +119,9 @@ class UdacitySimulator(AbstractSimulator):
             self,
             new_track_name: Union[TrackName, str] = TrackName.LAKE,
             new_weather_name: Union[WeatherName, str] = WeatherName.SUNNY,
-            new_daytime_name: Union[DayTimeName, str] = DayTimeName.DAY
+            new_daytime_name: Union[DayTimeName, str] = DayTimeName.DAY,
+            number_of_cars: int = 3,
+            start_positions: [] = [0, 5, 10]
     ):
         # Konvertieren von Strings zu Enums, falls nötig
         if isinstance(new_track_name, str):
@@ -169,8 +173,10 @@ class UdacitySimulator(AbstractSimulator):
         self.sim_executor.send_track(
             new_track_name.value,
             new_weather_name.value,
-            new_daytime_name.value
+            new_daytime_name.value,
         )
+
+        self.sim_executor.send_spawn_cars(number_of_cars, start_positions)
 
         # Warten, bis der Simulator bestätigt, dass die Strecke gesetzt wurde
         while not self.sim_state.get('track_set', False):

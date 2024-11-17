@@ -18,19 +18,22 @@ if __name__ == '__main__':
     command_port = 55002
     telemetry_port = 56043
     events_port = 54002
+    other_cars_port = 57002
     # simulator_exe_path = "/home/banana/projects/self-driving-car-sim/Builds/udacity_linux.x86_64"
 
     # TCP Port
-    simulator_exe_path = r"C:\Source\Auto\Windows Build 3\self_driving_car_nanodegree_program.exe"
+    simulator_exe_path = r"C:\Source\Auto\Windows Build\self_driving_car_nanodegree_program.exe"
 
     # Io Port
     # simulator_exe_path = r"C:\Source\Auto\beta_simulator_windows\beta_simulator.exe"
     assert pathlib.Path(simulator_exe_path).exists(), f"Simulator binary not found at {simulator_exe_path}"
 
     # Track settings
-    track = "mountain"
+    track = "lake"
     daytime = "day"
     weather = "sunny"
+    number_of_cars = 3
+    start_positions = [1, 5, 10]
     log_directory = pathlib.Path(f"udacity_dataset_lake_12_12_2/{track}_{weather}_{daytime}")
 
     # Creating the simulator wrapper
@@ -47,7 +50,7 @@ if __name__ == '__main__':
         simulator=simulator,
     )
     simulator.start()
-    observation, _ = env.reset(track=f"{track}", weather=f"{weather}", daytime=f"{daytime}")
+    observation, _ = env.reset(track=f"{track}", weather=f"{weather}", daytime=f"{daytime}", number_of_cars = number_of_cars, start_positions = start_positions)
 
     # Wait for environment to set up
     while not observation or not observation.is_ready():
