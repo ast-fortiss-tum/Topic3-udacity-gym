@@ -16,9 +16,9 @@ if __name__ == '__main__':
     # Configuration settings
     host = "127.0.0.1"
     command_port = 55002
-    telemetry_port = 56043
-    events_port = 54002
-    other_cars_port = 57002
+    telemetry_port = 56002
+    events_port = 57002
+    other_cars_port = 58002
     # simulator_exe_path = "/home/banana/projects/self-driving-car-sim/Builds/udacity_linux.x86_64"
 
     # TCP Port
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     assert pathlib.Path(simulator_exe_path).exists(), f"Simulator binary not found at {simulator_exe_path}"
 
     # Track settings
-    track = "lake"
+    track = "mountain"
     daytime = "day"
     weather = "sunny"
     number_of_cars = 2
@@ -43,6 +43,7 @@ if __name__ == '__main__':
         command_port=command_port,
         telemetry_port=telemetry_port,
         events_port=events_port,
+        other_cars_port=other_cars_port
     )
 
     # Creating the gym environment

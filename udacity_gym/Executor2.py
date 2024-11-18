@@ -24,9 +24,9 @@ class UdacityExecutor:
             self,
             host: str = '127.0.0.1',
             command_port: int = 55001,
-            telemetry_port: int = 56042,
-            events_port: int = 54001,
-            car_spawner_port: int = 57001,  # Neuer Port für den CarSpawner
+            telemetry_port: int = 56002,
+            events_port: int = 57002,
+            car_spawner_port: int = 58002,  # Neuer Port für den CarSpawner
     ):
         """Initializes the executor with host and ports for command and telemetry connections."""
         self.host = host
@@ -275,12 +275,6 @@ class UdacityExecutor:
             self.send_control()
 
             # Spawn cars nach dem ersten Empfang von Telemetriedaten
-            if not self.spawn_cars_sent:
-                self.logger.info("First telemetry received, spawning other cars.")
-                number_of_cars = 2
-                start_positions = [2, 4]
-                self.send_spawn_cars(number_of_cars, start_positions)
-                self.spawn_cars_sent = True  # Setze das Flag auf True, damit die Autos nur einmal gespawnt werden
 
         except Exception as e:
             self.logger.error(f"Error processing telemetry data: {e}")
@@ -392,13 +386,9 @@ if __name__ == '__main__':
     print("Starting UdacityExecutor")
     sim_executor = UdacityExecutor()
     sim_executor.start()
-    sim_executor.send_track(track="lake", daytime="day", weather="sunny")
+    # sim_executor.send_track(track="lake", daytime="day", weather="sunny")
 
-    # Warte, bis der Simulator die Strecke gesetzt hat
-    while not sim_executor.sim_state.get('track_set', False):
-        print("Waiting for the simulator to set the track...")
-        time.sleep(1)
-
+    sim_executor.send_spawn_cars(4, [ 3,5, 7, 9])
     # Jetzt wird send_spawn_cars in on_telemetry aufgerufen
 
     try:

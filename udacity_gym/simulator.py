@@ -70,18 +70,20 @@ class UdacitySimulator(AbstractSimulator):
             sim_exe_path: str = "./examples/udacity/udacity_utils/sim/udacity_sim.app",
             host: str = "127.0.0.1",
             command_port: int = 55002,
-            telemetry_port: int = 56043,
-            events_port: int = 54001,
+            telemetry_port: int = 56002,
+            events_port: int = 57002,
+            other_cars_port: int = 58002
     ):
         # Simulatorpfad
         self.simulator_exe_path = sim_exe_path
         self.sim_process = UnityProcess()
         # Netzwerkeinstellungen für den Simulator
-        self.sim_executor = UdacityExecutor(host, command_port, telemetry_port, events_port)
+        self.sim_executor = UdacityExecutor(host, command_port, telemetry_port, events_port, other_cars_port)
         self.host = host
         self.command_port = command_port
         self.telemetry_port = telemetry_port
         self.events_port = events_port
+        self.other_cars_port = other_cars_port
         # Logging für den Simulator
         self.logger = CustomLogger(str(self.__class__))
         # Zustand des Simulators
@@ -197,7 +199,8 @@ class UdacitySimulator(AbstractSimulator):
             headless=False,
             command_port=self.command_port,
             telemetry_port=self.telemetry_port,
-            events_port=self.events_port
+            events_port=self.events_port,
+            other_cars_port=self.other_cars_port
         )
         self.sim_executor.start()
 
