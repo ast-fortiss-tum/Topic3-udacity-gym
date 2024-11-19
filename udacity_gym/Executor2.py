@@ -11,7 +11,6 @@ from udacity_gym.global_manager import get_simulator_state
 from enum import Enum
 
 
-# Define simulation states with Enum
 class SimStates(Enum):
     RUNNING = 'running'
     STOPPED = 'stopped'
@@ -24,27 +23,26 @@ class UdacityExecutor:
             self,
             host: str = '127.0.0.1',
             command_port: int = 55001,
-            telemetry_port: int = 56002,
-            events_port: int = 57002,
-            car_spawner_port: int = 58002,  # Neuer Port für den CarSpawner
+            telemetry_port: int = 56001,
+            events_port: int = 57001,
+            car_spawner_port: int = 58001,
     ):
         """Initializes the executor with host and ports for command and telemetry connections."""
         self.host = host
         self.command_port = command_port
         self.telemetry_port = telemetry_port
         self.events_port = events_port
-        self.car_spawner_port = car_spawner_port  # Speichert den neuen Port
+        self.car_spawner_port = car_spawner_port
         self.command_sock = None
         self.telemetry_sock = None
         self.events_sock = None
-        self.car_spawner_sock = None  # Neuer Socket für den CarSpawner
+        self.car_spawner_sock = None
         self.running = False
         self.sim_state = get_simulator_state()
         self.logger = CustomLogger(str(self.__class__))
         self.buffer = ''
         self.telemetry_lock = threading.Lock()
         self.logger.info("UdacityExecutor initialized.")
-        self.spawn_cars_sent = False
 
     def connect_to_server(self):
         """Attempts to establish connections to the servers."""
@@ -271,10 +269,7 @@ class UdacityExecutor:
 
             self.sim_state['observation'] = observation
             self.logger.info("Telemetry data processed successfully.")
-            # Send control commands
             self.send_control()
-
-            # Spawn cars nach dem ersten Empfang von Telemetriedaten
 
         except Exception as e:
             self.logger.error(f"Error processing telemetry data: {e}")
@@ -295,18 +290,13 @@ class UdacityExecutor:
         self.send_message(resume_message, self.events_sock)
 
     def send_track(self, track, weather, daytime):
-        # end_episode_message = {
-           # "command": "end_episode"
-        # }
         start_episode_message = {
             "command": "start_episode",
             "track_name": track,
             "weather_name": weather,
             "daytime_name": daytime
         }
-        # self.logger.debug(f"Prepared end episode message: {end_episode_message}")
         self.logger.debug(f"Prepared start episode message: {start_episode_message}")
-        # self.send_message(end_episode_message, self.events_sock)
         self.send_message(start_episode_message, self.events_sock)
 
     def send_spawn_cars(self, number_of_cars, start_positions):
@@ -315,15 +305,14 @@ class UdacityExecutor:
             "number_of_cars": number_of_cars,
             "start_positions": start_positions
         }
-        print(f"Prepared spawn cars message: {spawn_cars_message}")
         self.logger.debug(f"Prepared spawn cars message: {spawn_cars_message}")
-        self.send_message(spawn_cars_message, self.car_spawner_sock)  # Sende über den neuen Socket
+        self.send_message(spawn_cars_message, self.car_spawner_sock)
 
     def on_sim_paused(self):
-        self.sim_state['sim_state'] = SimStates.PAUSED  # Use Enum instead of string
+        self.sim_state['sim_state'] = SimStates.PAUSED
 
     def on_sim_resumed(self):
-        self.sim_state['sim_state'] = SimStates.RUNNING  # Use Enum instead of string
+        self.sim_state['sim_state'] = SimStates.RUNNING
 
     def on_episode_metrics(self, data):
         self.logger.info(f"Episode metrics: {data}")
@@ -387,12 +376,9 @@ if __name__ == '__main__':
     sim_executor = UdacityExecutor()
     sim_executor.start()
     # sim_executor.send_track(track="lake", daytime="day", weather="sunny")
-
-    sim_executor.send_spawn_cars(4, [ 3,5, 7, 9])
-    # Jetzt wird send_spawn_cars in on_telemetry aufgerufen
+    sim_executor.send_spawn_cars(3, [2,3,4])
 
     try:
-        # Hauptschleife
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
