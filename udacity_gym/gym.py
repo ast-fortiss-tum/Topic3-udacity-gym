@@ -142,9 +142,9 @@ class UdacityGym(gym.Env):
         return None
 
     def setothercars(self,
-                     number_of_cars: int = 3,
+                     speedPerCar: List[int] = None,
                     start_positions: List[int] = None):
-        self.simulator.setothercars(number_of_cars, start_positions)
+        self.simulator.setothercars(speedPerCar, start_positions)
 
     def observe(self) -> UdacityObservation:
         return self.simulator.observe()

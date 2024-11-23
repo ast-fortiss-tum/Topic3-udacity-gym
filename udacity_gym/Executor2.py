@@ -299,10 +299,10 @@ class UdacityExecutor:
         self.logger.debug(f"Prepared start episode message: {start_episode_message}")
         self.send_message(start_episode_message, self.events_sock)
 
-    def send_spawn_cars(self, number_of_cars, start_positions):
+    def send_spawn_cars(self, speedPerCar, start_positions):
         spawn_cars_message = {
             "command": "spawn_cars",
-            "number_of_cars": number_of_cars,
+            "speedPerCar": speedPerCar,
             "start_positions": start_positions
         }
         self.logger.debug(f"Prepared spawn cars message: {spawn_cars_message}")
@@ -376,7 +376,7 @@ if __name__ == '__main__':
     sim_executor = UdacityExecutor()
     sim_executor.start()
     # sim_executor.send_track(track="lake", daytime="day", weather="sunny")
-    sim_executor.send_spawn_cars(3, [2,3,4])
+    sim_executor.send_spawn_cars([1,2,3], [2,3,4])
 
     try:
         while True:

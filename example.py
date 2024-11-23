@@ -3,7 +3,7 @@ import pathlib
 import time
 import tqdm
 from udacity_gym import UdacitySimulator, UdacityGym, UdacityAction
-from udacity_gym.agent import PIDUdacityAgent
+from udacity_gym.agent import PIDUdacityAgent, EndToEndLaneKeepingAgent
 from udacity_gym.agent_callback import LogObservationCallback, PauseSimulationCallback, ResumeSimulationCallback
 
 import csv
@@ -32,8 +32,8 @@ if __name__ == '__main__':
     track = "mountain"
     daytime = "day"
     weather = "sunny"
-    number_of_cars = 2
-    start_positions = [5, 10]
+    speedPerCar = [3, 10]
+    start_positions = [2, 3]
     log_directory = pathlib.Path(f"udacity_dataset_lake_12_12_2/{track}_{weather}_{daytime}")
 
     # Creating the simulator wrapper
@@ -41,6 +41,7 @@ if __name__ == '__main__':
         sim_exe_path=simulator_exe_path,
         host=host,
         command_port=command_port,
+        
         telemetry_port=telemetry_port,
         events_port=events_port,
         other_cars_port=other_cars_port
@@ -61,7 +62,7 @@ if __name__ == '__main__':
         print("Waiting for environment to set up...")
         time.sleep(1)
 
-    env.setothercars(number_of_cars, start_positions)
+    env.setothercars(speedPerCar, start_positions)
 
     log_observation_callback = LogObservationCallback(log_directory)
     agent = PIDUdacityAgent(
@@ -71,8 +72,10 @@ if __name__ == '__main__':
         after_action_callbacks=[log_observation_callback],
     )
 
+    #agent = EndToEndLaneKeepingAgent()
+
     # Interacting with the gym environment
-    for _ in tqdm.tqdm(range(1000)):
+    for _ in tqdm.tqdm(range(5000)):
         action = agent(observation)
         last_observation = observation
         observation, reward, terminated, truncated, info = env.step(action)

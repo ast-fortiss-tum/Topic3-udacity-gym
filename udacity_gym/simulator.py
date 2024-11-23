@@ -187,9 +187,9 @@ class UdacitySimulator(AbstractSimulator):
         return observation, {}
 
     def setothercars(self,
-                     number_of_cars: int = 3,
+                     speedPerCar: List[int] = None,
                     start_positions: List[int] = None):
-        self.sim_executor.send_spawn_cars(number_of_cars, start_positions)
+        self.sim_executor.send_spawn_cars(speedPerCar, start_positions)
 
     def start(self):
         # Starte Unity-Simulationsprozess
