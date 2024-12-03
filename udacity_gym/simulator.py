@@ -1,17 +1,15 @@
-import copy
 import pathlib
 import time
 from enum import Enum
 from typing import List, Union
 
-from sympy import true
-
-from .global_manager import get_simulator_state
+from .Executor2 import UdacityExecutor  # Stellen Sie sicher, dass dies korrekt importiert wird
 from .action import UdacityAction
+from .extras.Objects.ObjectInterface import ObjectInterface
+from .global_manager import get_simulator_state
 from .logger import CustomLogger
 from .observation import UdacityObservation
 from .unity_process import UnityProcess
-from .Executor2 import UdacityExecutor  # Stellen Sie sicher, dass dies korrekt importiert wird
 
 # Konstanten für den Simulatorzustand und Schlafdauer
 SLEEP_DURATION = 0.1
@@ -187,9 +185,8 @@ class UdacitySimulator(AbstractSimulator):
         return observation, {}
 
     def setothercars(self,
-                     speedPerCar: List[int] = None,
-                    start_positions: List[int] = None):
-        self.sim_executor.send_spawn_cars(speedPerCar, start_positions)
+                     objects: List[ObjectInterface] = None):
+        self.sim_executor.send_spawn_objects(objects)
 
     def start(self):
         # Starte Unity-Simulationsprozess

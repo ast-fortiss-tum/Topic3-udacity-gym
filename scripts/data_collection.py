@@ -2,7 +2,8 @@ import itertools
 import pathlib
 import time
 import tqdm
-from udacity_gym import UdacitySimulator, UdacityGym, UdacityAction
+
+from udacity_gym import UdacitySimulator, UdacityGym
 from udacity_gym.agent import PIDUdacityAgent
 from udacity_gym.agent_callback import LogObservationCallback
 

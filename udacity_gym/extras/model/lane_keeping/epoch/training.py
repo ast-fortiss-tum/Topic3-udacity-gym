@@ -1,16 +1,15 @@
-import pathlib
-import random
 import lightning as pl
 import pandas as pd
+import pathlib
+import random
 import torch
 import torchvision.transforms
 from PIL import Image
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
-
 from torch.utils.data import Dataset, DataLoader
 
 from udacity_gym.extras.model.lane_keeping.epoch.epoch_model import Epoch
-from utils.conf import ACCELERATOR, DEVICE, DEFAULT_DEVICE, CHECKPOINT_DIR, PROJECT_DIR
+from utils.conf import ACCELERATOR, DEVICE, CHECKPOINT_DIR, PROJECT_DIR
 
 pl.seed_everything(42)
 torch.set_float32_matmul_precision('high')

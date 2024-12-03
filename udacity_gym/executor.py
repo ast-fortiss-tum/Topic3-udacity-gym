@@ -1,17 +1,16 @@
 import base64
+import csv
 import io
+import json
 import socket
 import threading
-import json
 import time
-import csv
-import pathlib
-
 from PIL import Image
 
-from udacity_gym.observation import UdacityObservation
-from udacity_gym.logger import CustomLogger
 from udacity_gym.global_manager import get_simulator_state
+from udacity_gym.logger import CustomLogger
+from udacity_gym.observation import UdacityObservation
+
 
 class UdacityExecutorAlt:
     def __init__(
@@ -135,13 +134,11 @@ class UdacityExecutorAlt:
 
     def on_telemetry(self, data):
         """Processes telemetry data and triggers control commands."""
-        self.logger.info("Processing telemetry data.")
         try:
             image_base64 = data.get("image", "")
             if image_base64:
                 image_bytes = base64.b64decode(image_base64)
                 image = Image.open(io.BytesIO(image_bytes))
-                self.logger.debug("Image processed from telemetry data.")
             else:
                 image = None
 
@@ -160,7 +157,6 @@ class UdacityExecutorAlt:
             )
 
             self.sim_state['observation'] = observation
-            self.logger.info("Telemetry data processed successfully.")
             self.send_control()
 
         except Exception as e:
@@ -168,7 +164,6 @@ class UdacityExecutorAlt:
 
     def send_control(self):
         """Sends control commands to the simulator."""
-        self.logger.info("Sending control commands to the simulator.")
         action = self.sim_state.get('action', None)
         if action:
             control_data = {

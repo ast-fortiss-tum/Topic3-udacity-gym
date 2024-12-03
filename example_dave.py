@@ -2,8 +2,9 @@ import json
 import pathlib
 import time
 import tqdm
-from udacity_gym import UdacitySimulator, UdacityGym, UdacityAction
-from udacity_gym.agent import PIDUdacityAgent, DaveUdacityAgent
+
+from udacity_gym import UdacitySimulator, UdacityGym
+from udacity_gym.agent import DaveUdacityAgent
 from udacity_gym.agent_callback import LogObservationCallback
 
 if __name__ == '__main__':

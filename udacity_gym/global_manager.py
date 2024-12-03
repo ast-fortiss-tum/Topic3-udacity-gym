@@ -1,5 +1,6 @@
 # global_manager.py
 from multiprocessing import Manager
+
 from .action import UdacityAction
 
 # Lazy initialization of Manager and simulator_state

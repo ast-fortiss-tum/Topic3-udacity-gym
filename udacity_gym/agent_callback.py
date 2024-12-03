@@ -1,11 +1,10 @@
-import pathlib
-from typing import Callable
-
 import numpy as np
 import pandas as pd
+import pathlib
 import pygame
 import torch
 import torchvision
+from typing import Callable
 
 from udacity_gym import UdacityObservation, UdacitySimulator
 from udacity_gym.logger import CustomLogger

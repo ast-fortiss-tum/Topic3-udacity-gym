@@ -1,9 +1,7 @@
-from typing import Optional, Tuple, Any, SupportsFloat, List
-
 import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
-import time  # Import für die Synchronisierung im Reset
+from typing import Optional, Tuple, Any, SupportsFloat, List
 
 from .action import UdacityAction
 from .logger import CustomLogger

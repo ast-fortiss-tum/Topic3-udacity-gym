@@ -1,11 +1,10 @@
-from typing import Any
-
 import lightning as pl
 import torch
 import torchinfo
 import torchmetrics
 from lightning.pytorch.utilities.types import STEP_OUTPUT
 from torch import nn
+from typing import Any
 
 from udacity_gym.extras.model.segmentation.unet.module import UnetEncoder, UnetDecoder, PositionalEncoder
 

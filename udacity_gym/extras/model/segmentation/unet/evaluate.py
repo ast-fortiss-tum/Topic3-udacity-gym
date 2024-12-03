@@ -5,13 +5,10 @@ import pandas as pd
 import torch
 import torchvision.transforms
 import tqdm
-from PIL import Image
-from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 import itertools
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 import torchmetrics
 from model.segmentation.unet.training import SegmentationDataset
-from model.lane_keeping.dave.dave_model import Dave2
 from model.segmentation.unet.unet_model import SegmentationUnet
 from utils.conf import ACCELERATOR, DEVICE, DEFAULT_DEVICE, CHECKPOINT_DIR
 

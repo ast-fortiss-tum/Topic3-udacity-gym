@@ -11,6 +11,9 @@ import statistics
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from udacity_gym.extras.Objects.DummyCar import DummyCar
+from udacity_gym.extras.Objects.StaticBlock import StaticBlock
+
 if __name__ == '__main__':
 
     # Configuration settings
@@ -32,8 +35,13 @@ if __name__ == '__main__':
     track = "mountain"
     daytime = "day"
     weather = "sunny"
-    speedPerCar = [3, 10]
-    start_positions = [2, 3]
+
+    objects = [
+        DummyCar("Car1", 2, 5),
+        DummyCar("Car2", 5, 6),
+        StaticBlock("Block1", 4.5, 3.1, [0.1, 0.5, 0.2])
+    ]
+
     log_directory = pathlib.Path(f"udacity_dataset_lake_12_12_2/{track}_{weather}_{daytime}")
 
     # Creating the simulator wrapper
@@ -41,7 +49,6 @@ if __name__ == '__main__':
         sim_exe_path=simulator_exe_path,
         host=host,
         command_port=command_port,
-        
         telemetry_port=telemetry_port,
         events_port=events_port,
         other_cars_port=other_cars_port
@@ -62,7 +69,7 @@ if __name__ == '__main__':
         print("Waiting for environment to set up...")
         time.sleep(1)
 
-    env.setothercars(speedPerCar, start_positions)
+    env.setothercars(objects)
 
     log_observation_callback = LogObservationCallback(log_directory)
     agent = PIDUdacityAgent(

@@ -1,7 +1,4 @@
-from typing import Union
-
 from PIL import Image
-import numpy as np
 
 
 class UdacityObservation:

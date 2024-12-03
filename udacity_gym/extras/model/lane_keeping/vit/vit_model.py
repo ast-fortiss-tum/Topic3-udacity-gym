@@ -1,10 +1,10 @@
-import math
-import torchvision.utils
-from typing import Tuple
 import lightning as pl
+import math
 import torch
+import torchvision.utils
 from torch import Tensor
 from torchvision.models import VisionTransformer
+from typing import Tuple
 
 
 class ViT(pl.LightningModule):

@@ -1,19 +1,18 @@
-import pathlib
-import random
-
+import itertools
 import lightning as pl
 import numpy as np
 import pandas as pd
+import pathlib
+import random
 import torch
 import torchvision.transforms
 from PIL import Image
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
-import itertools
+from model.segmentation.unet.unet_model import SegmentationUnet
 from torch.utils.data import Dataset, DataLoader
 
-from model.lane_keeping.dave.dave_model import Dave2
-from model.segmentation.unet.unet_model import SegmentationUnet
-from utils.conf import ACCELERATOR, DEVICE, DEFAULT_DEVICE, CHECKPOINT_DIR, PROJECT_DIR
+from utils.conf import ACCELERATOR, DEVICE, CHECKPOINT_DIR, PROJECT_DIR
+
 
 def random_flip(x, y):
     if random.random() > 0.5:

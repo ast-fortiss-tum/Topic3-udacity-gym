@@ -1,8 +1,8 @@
-import math
-from typing import Tuple
 import lightning as pl
+import math
 import torch
 from torch import Tensor
+from typing import Tuple
 
 
 class Chauffeur(pl.LightningModule):

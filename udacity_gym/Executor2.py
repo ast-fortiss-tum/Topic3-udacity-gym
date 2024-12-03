@@ -1,14 +1,20 @@
 import base64
 import io
+import json
 import socket
 import threading
-import json
 import time
+from typing import List
+
 from PIL import Image
-from udacity_gym.observation import UdacityObservation
-from udacity_gym.logger import CustomLogger
-from udacity_gym.global_manager import get_simulator_state
 from enum import Enum
+
+from udacity_gym.extras.Objects.DummyCar import DummyCar
+from udacity_gym.extras.Objects.ObjectInterface import ObjectInterface
+from udacity_gym.extras.Objects.StaticBlock import StaticBlock
+from udacity_gym.global_manager import get_simulator_state
+from udacity_gym.logger import CustomLogger
+from udacity_gym.observation import UdacityObservation
 
 
 class SimStates(Enum):
@@ -36,7 +42,7 @@ class UdacityExecutor:
         self.command_sock = None
         self.telemetry_sock = None
         self.events_sock = None
-        self.car_spawner_sock = None
+        self.spawner_sock = None
         self.running = False
         self.sim_state = get_simulator_state()
         self.logger = CustomLogger(str(self.__class__))
@@ -82,13 +88,13 @@ class UdacityExecutor:
                 all_connected = False
 
             try:
-                if not self.car_spawner_sock:
-                    self.car_spawner_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    self.car_spawner_sock.connect((self.host, self.car_spawner_port))
+                if not self.spawner_sock:
+                    self.spawner_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.spawner_sock.connect((self.host, self.car_spawner_port))
                     self.logger.info(f"Connected to CarSpawner server at {self.host}:{self.car_spawner_port}.")
             except Exception as e:
                 self.logger.error(f"Error connecting to the CarSpawner server on port {self.car_spawner_port}: {e}")
-                self.car_spawner_sock = None
+                self.spawner_sock = None
                 all_connected = False
 
             if all_connected:
@@ -299,6 +305,12 @@ class UdacityExecutor:
         self.logger.debug(f"Prepared start episode message: {start_episode_message}")
         self.send_message(start_episode_message, self.events_sock)
 
+    def send_spawn_objects(self, objects: List[ObjectInterface]):
+        for object in objects:
+            send_message = object.GetMessage()
+            self.logger.debug(f"Prepared spawn cars message: {send_message}")
+            self.send_message(send_message, self.spawner_sock)
+
     def send_spawn_cars(self, speedPerCar, start_positions):
         spawn_cars_message = {
             "command": "spawn_cars",
@@ -306,7 +318,7 @@ class UdacityExecutor:
             "start_positions": start_positions
         }
         self.logger.debug(f"Prepared spawn cars message: {spawn_cars_message}")
-        self.send_message(spawn_cars_message, self.car_spawner_sock)
+        self.send_message(spawn_cars_message, self.spawner_sock)
 
     def on_sim_paused(self):
         self.sim_state['sim_state'] = SimStates.PAUSED
@@ -366,8 +378,8 @@ class UdacityExecutor:
         if self.events_sock:
             self.events_sock.close()
             self.logger.info("Event socket closed.")
-        if self.car_spawner_sock:
-            self.car_spawner_sock.close()
+        if self.spawner_sock:
+            self.spawner_sock.close()
             self.logger.info("CarSpawner socket closed.")
 
 
@@ -376,7 +388,11 @@ if __name__ == '__main__':
     sim_executor = UdacityExecutor()
     sim_executor.start()
     # sim_executor.send_track(track="lake", daytime="day", weather="sunny")
-    sim_executor.send_spawn_cars([1,2,3], [2,3,4])
+    # sim_executor.send_spawn_cars([1,2,3], [2,3,4])
+    objects = [
+        StaticBlock("Block1", 4.5, 3.1, [0.2, 0.5, 0.2])
+    ]
+    sim_executor.send_spawn_objects(objects)
 
     try:
         while True:
