@@ -29,3 +29,7 @@ class ObjectInterface(ABC):
     @abstractmethod
     def GetSpawnPoint(self):
         pass
+
+    @abstractmethod
+    def GetPrefabName(self):
+        pass

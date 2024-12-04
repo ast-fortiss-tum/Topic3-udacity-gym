@@ -11,6 +11,9 @@ class DummyCar(ObjectInterface):
     def GetCommand(self):
         return "spawn_car"
 
+    def GetPrefabName(self):
+        return "Objects/Dummy"
+
     def GetName(self):
         return self.Name
     def GetSpeed(self):
@@ -22,11 +25,13 @@ class DummyCar(ObjectInterface):
     def GetScaleVektor(self):
         return None
 
+
     def GetMessage(self):
         return {
-            "command": object.GetCommand(),
-                "name": object.GetName(),
-                "speed": object.GetSpeed(),
-                "spawn_point": object.GetSpawnPoint(),
+            "command": self.GetCommand(),
+                "name": self.GetName(),
+                "speed": self.GetSpeed(),
+                "spawn_point": self.GetSpawnPoint(),
+                "prefab_name": self.GetPrefabName()
                 }
 

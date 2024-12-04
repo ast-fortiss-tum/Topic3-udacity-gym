@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     objects = [
         DummyCar("Car1", 2, 5),
-        DummyCar("Car2", 5, 6),
+        DummyCar("Car2", 4, 6),
         StaticBlock("Block1", 4.5, 3.1, [0.1, 0.5, 0.2])
     ]
 

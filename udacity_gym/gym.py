@@ -4,6 +4,7 @@ from gymnasium import spaces
 from typing import Optional, Tuple, Any, SupportsFloat, List
 
 from .action import UdacityAction
+from .extras.Objects.ObjectInterface import ObjectInterface
 from .logger import CustomLogger
 from .observation import UdacityObservation
 from .simulator import TrackName, WeatherName, DayTimeName
@@ -140,9 +141,8 @@ class UdacityGym(gym.Env):
         return None
 
     def setothercars(self,
-                     speedPerCar: List[int] = None,
-                    start_positions: List[int] = None):
-        self.simulator.setothercars(speedPerCar, start_positions)
+                     objects: List[ObjectInterface] = None):
+        self.simulator.setothercars(objects)
 
     def observe(self) -> UdacityObservation:
         return self.simulator.observe()

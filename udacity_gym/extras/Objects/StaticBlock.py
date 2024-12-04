@@ -25,12 +25,16 @@ class StaticBlock(ObjectInterface):
     def GetOffset(self):
         return self.Offset
 
+    def GetPrefabName(self):
+        return "Objects/House"
+
 
     def GetMessage(self):
         return {
-            "command": object.GetCommand(),
-                "name": object.GetName(),
-                "spawn_point": object.GetSpawnPoint(),
-                "offset": object.GetOffset(),
-                "scale_Vektor": object.GetScaleVektor()
+            "command": self.GetCommand(),
+                "name": self.GetName(),
+                "spawn_point": self.GetSpawnPoint(),
+                "offset": self.GetOffset(),
+                "scale_Vektor": self.GetScaleVektor(),
+                "prefab_name": self.GetPrefabName()
                 }
