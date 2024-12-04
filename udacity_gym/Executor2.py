@@ -9,7 +9,7 @@ from typing import List
 from PIL import Image
 from enum import Enum
 
-from udacity_gym.extras.Objects.DummyCar import DummyCar
+from udacity_gym.extras.Objects.MovingObject import MovingObject
 from udacity_gym.extras.Objects.ObjectInterface import ObjectInterface
 from udacity_gym.extras.Objects.StaticBlock import StaticBlock
 from udacity_gym.global_manager import get_simulator_state
@@ -28,10 +28,10 @@ class UdacityExecutor:
     def __init__(
             self,
             host: str = '127.0.0.1',
-            command_port: int = 55002,
-            telemetry_port: int = 56002,
-            events_port: int = 57002,
-            car_spawner_port: int = 58002,
+            command_port: int = 55001,
+            telemetry_port: int = 56001,
+            events_port: int = 57001,
+            car_spawner_port: int = 58001,
     ):
         """Initializes the executor with host and ports for command and telemetry connections."""
         self.host = host
@@ -390,8 +390,8 @@ if __name__ == '__main__':
     # sim_executor.send_track(track="lake", daytime="day", weather="sunny")
     # sim_executor.send_spawn_cars([1,2,3], [2,3,4])
     objects = [
-        DummyCar("Car1", 2, 3),
-        StaticBlock("Block1", 4.5, 3.1, [0.2, 0.5, 0.2])
+        MovingObject("Car1", "Dummy", 2, 3),
+        # StaticBlock("Block1","House", 4.5, 3.1, [0.2, 0.5, 0.2])
     ]
     sim_executor.send_spawn_objects(objects)
 

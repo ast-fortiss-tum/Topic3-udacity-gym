@@ -2,17 +2,18 @@ from .ObjectInterface import ObjectInterface
 
 
 
-class DummyCar(ObjectInterface):
-    def __init__(self, Name, Speed, SpawnPoint):
+class MovingObject(ObjectInterface):
+    def __init__(self, Name, Prefab ,Speed, SpawnPoint):
         self.Name = Name
         self.Speed = Speed
         self.SpawnPoint = SpawnPoint
+        self.Prefab = Prefab
 
     def GetCommand(self):
         return "spawn_car"
 
     def GetPrefabName(self):
-        return "Objects/Dummy"
+        return "Objects/" + self.Prefab
 
     def GetName(self):
         return self.Name

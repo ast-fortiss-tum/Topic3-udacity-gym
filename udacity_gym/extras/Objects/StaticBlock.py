@@ -1,11 +1,17 @@
 from .ObjectInterface import ObjectInterface
 
 class StaticBlock(ObjectInterface):
-    def __init__(self, Name, SpawnPoint, Offset, ScaleVektor):
+
+    def __init__(self, Name, Prefab ,SpawnPoint, Offset, ScaleVektor):
         self.Name = Name
+        self.Prefab = Prefab
         self.SpawnPoint = SpawnPoint
         self.Offset = Offset
         self.ScaleVektor = ScaleVektor
+
+
+    def GetPrefabName(self):
+        return "Objects/" + self.Prefab
 
     def GetCommand(self):
         return "spawn_static_object"

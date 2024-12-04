@@ -11,7 +11,7 @@ import statistics
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from udacity_gym.extras.Objects.DummyCar import DummyCar
+from udacity_gym.extras.Objects.MovingObject import MovingObject
 from udacity_gym.extras.Objects.StaticBlock import StaticBlock
 
 if __name__ == '__main__':
@@ -37,9 +37,10 @@ if __name__ == '__main__':
     weather = "sunny"
 
     objects = [
-        DummyCar("Car1", 2, 5),
-        DummyCar("Car2", 4, 6),
-        StaticBlock("Block1", 4.5, 3.1, [0.1, 0.5, 0.2])
+        MovingObject("Car1", "Dummy",4, 5),
+        MovingObject("Car2", "Dummy",5, 6),
+        StaticBlock("Block1", "House", 4.5, 3.1, [0.1, 0.5, 0.2]),
+        StaticBlock("Block2", "House",20.5, -2.5, [0.1, 0.3, 0.1])
     ]
 
     log_directory = pathlib.Path(f"udacity_dataset_lake_12_12_2/{track}_{weather}_{daytime}")

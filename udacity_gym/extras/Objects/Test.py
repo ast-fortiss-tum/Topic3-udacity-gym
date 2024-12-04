@@ -1,5 +1,5 @@
 import ObjectInterface
-from udacity_gym.extras.Objects.DummyCar import DummyCar
+from udacity_gym.extras.Objects.MovingObject import DummyCar
 from udacity_gym.extras.Objects.StaticBlock import StaticBlock
 
 
