@@ -32,15 +32,26 @@ if __name__ == '__main__':
     assert pathlib.Path(simulator_exe_path).exists(), f"Simulator binary not found at {simulator_exe_path}"
 
     # Track settings
-    track = "mountain"
+    track = "lake"
     daytime = "day"
     weather = "sunny"
 
     objects = [
-        MovingObject("Car1", "Dummy",4, 5),
-        MovingObject("Car2", "Dummy",5, 6),
-        StaticBlock("Block1", "House", 4.5, 3.1, [0.1, 0.5, 0.2]),
-        StaticBlock("Block2", "House",20.5, -2.5, [0.1, 0.3, 0.1])
+        MovingObject("Car1", "Dummy",4, 3, 20, [1,1,1], [0,0,0] ),
+        MovingObject("Car1", "Bus", -2, 2, 7, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Bus", 4, 2, 7, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Bus", -2, 2, 10, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Bus", -2, 2, 15, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Bus", -2, 2, 20, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Dummy", -2, 3, 25, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Dummy", -2, 3, 28, [1, 1, 1], [0, 0, 0]),
+
+        MovingObject("Car1", "CarBlack", 3, 3, 3, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarBlue", 3, 3, 4, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarRed", 3, 3, 5, [1, 1, 1], [0, 0, 0]),
+
+        StaticBlock("Block1", "BarricadaNew", 4.5, 7, [2,2,2], [270, 0, 0]),
+        StaticBlock("Block2", "House",20.5, -4, [0.1, 0.3, 0.1], [0, 0, 0])
     ]
 
     log_directory = pathlib.Path(f"udacity_dataset_lake_12_12_2/{track}_{weather}_{daytime}")

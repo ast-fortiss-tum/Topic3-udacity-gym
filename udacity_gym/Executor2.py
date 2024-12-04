@@ -390,8 +390,8 @@ if __name__ == '__main__':
     # sim_executor.send_track(track="lake", daytime="day", weather="sunny")
     # sim_executor.send_spawn_cars([1,2,3], [2,3,4])
     objects = [
-        MovingObject("Car1", "Dummy", 2, 3),
-        # StaticBlock("Block1","House", 4.5, 3.1, [0.2, 0.5, 0.2])
+        MovingObject("Car1", "Bus", -2, 2,7, [8, 8, 8], [0, 90, 0]),
+        StaticBlock("Block1","BarricadaNew", 7.5, 1, [2, 2, 2], [270, 0, 0])
     ]
     sim_executor.send_spawn_objects(objects)
 

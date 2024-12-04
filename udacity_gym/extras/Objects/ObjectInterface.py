@@ -33,3 +33,7 @@ class ObjectInterface(ABC):
     @abstractmethod
     def GetPrefabName(self):
         pass
+
+    @abstractmethod
+    def GetRotation(self):
+        pass

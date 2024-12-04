@@ -82,7 +82,7 @@ class PIDUdacityAgent(UdacityAgent):
         steering_angle = max(-1, min(steering_angle, 1))
 
         # Calculate throttle
-        throttle = 0.22 - 0.5 * abs(steering_angle)
+        throttle = (0.22 - 0.5 * abs(steering_angle)) *0.7
 
         # Save error for next prediction
         self.total_error += error
