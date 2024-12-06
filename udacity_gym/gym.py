@@ -84,9 +84,6 @@ class UdacityGym(gym.Env):
             self.logger.info("Episode beendet: Kollision erkannt.")
 
         # Wenn die maximale Schrittzahl erreicht wurde
-        elif self.current_step >= self.max_steps:
-            truncated = True
-            self.logger.info("Episode abgebrochen: Maximale Schrittzahl erreicht.")
 
         # Berechnen der Belohnung (Beispiel: negative absolute CTE)
         reward = -abs(observation.cte)

@@ -28,10 +28,10 @@ class UdacityExecutor:
     def __init__(
             self,
             host: str = '127.0.0.1',
-            command_port: int = 55001,
-            telemetry_port: int = 56001,
-            events_port: int = 57001,
-            car_spawner_port: int = 58001,
+            command_port: int = 55002,
+            telemetry_port: int = 56002,
+            events_port: int = 57002,
+            car_spawner_port: int = 58002,
     ):
         """Initializes the executor with host and ports for command and telemetry connections."""
         self.host = host
@@ -109,7 +109,7 @@ class UdacityExecutor:
 
     def send_control(self):
         """Sends control commands to the simulator."""
-        self.logger.info("Sending control commands to the simulator.")
+
         action = self.sim_state.get('action', None)
         if action:
             control_data = {
@@ -224,7 +224,6 @@ class UdacityExecutor:
 
     def on_telemetry(self, data):
         """Processes telemetry data and triggers control commands."""
-        self.logger.info("Processing telemetry data.")
         self.logger.debug(f"Type of data: {type(data)}, Content of data: {data}")
 
         if isinstance(data, str):
@@ -274,7 +273,6 @@ class UdacityExecutor:
             )
 
             self.sim_state['observation'] = observation
-            self.logger.info("Telemetry data processed successfully.")
             self.send_control()
 
         except Exception as e:
@@ -388,13 +386,37 @@ if __name__ == '__main__':
     sim_executor = UdacityExecutor()
     sim_executor.start()
     # sim_executor.send_track(track="lake", daytime="day", weather="sunny")
-    # sim_executor.send_spawn_cars([1,2,3], [2,3,4])
     objects = [
-        MovingObject("Car1", "Bus", -2, 2,7, [8, 8, 8], [0, 90, 0]),
-        StaticBlock("Block1","BarricadaNew", 7.5, 1, [2, 2, 2], [270, 0, 0])
+
+        MovingObject("Car1", "Bus", -6, [2,0,0], 3, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Bus", -6, [2,0,0], 5, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Bus", -6, [2,0,0], 8, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "CarBlack", -6, [2,0.4,0], 9, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarRed", -6, [2,0.4,0], 10, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarBlack", -6, [2,0.4,0], 11, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarBlue", -6, [2,0.4,0], 12, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Bus", -6, [2,0,0], 14, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "CarBlack", -6, [2,0.4,0], 15.5, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Bus", -6, [2,0,0], 17, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Bus", -6, [2,0,0], 18.5, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Dummy", -6, [2,0,0], 21, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Dummy", -6, [2,0,0], 24, [1, 1, 1], [0, 0, 0]),
+
+        MovingObject("Car1", "Dummy", 5, [2,0,0], 20, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Bus", 5, [2,0,0], 7, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "CarBlack", 5, [2,0.4,0], 3, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarBlue", 5, [2,0.4,0], 4, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarRed", 5, [2,0.4,0], 5, [1, 1, 1], [0, 0, 0]),
+
+        StaticBlock("Block1", "BarricadaNew", 4.5, [5,0,0], [2, 2, 2], [270, 0, 0]),
+        StaticBlock("Block2", "House", 20.5, [-4,0,0], [0.1, 0.3, 0.1], [0, 0, 0])
     ]
     sim_executor.send_spawn_objects(objects)
 
+    test = [
+        MovingObject("Car1", "CarBlack", 5, [2, 0.4, 0], 1, [1, 1, 1], [0, 0, 0]),
+    ]
+    #sim_executor.send_spawn_objects(test)
     try:
         while True:
             time.sleep(1)

@@ -1,5 +1,6 @@
 import json
 import pathlib
+import random
 import time
 import tqdm
 from udacity_gym import UdacitySimulator, UdacityGym, UdacityAction
@@ -43,6 +44,9 @@ if __name__ == '__main__':
         MovingObject("Car1", "Bus", -2, 2, 10, [8, 8, 8], [0, 90, 0]),
         MovingObject("Car1", "Bus", -2, 2, 15, [8, 8, 8], [0, 90, 0]),
         MovingObject("Car1", "Bus", -2, 2, 20, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Bus", -2, 2, 3, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "CarBlack", 3, 5, 3, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Bus", -2, 2, 8, [8, 8, 8], [0, 90, 0]),
         MovingObject("Car1", "Dummy", -2, 3, 25, [1, 1, 1], [0, 0, 0]),
         MovingObject("Car1", "Dummy", -2, 3, 28, [1, 1, 1], [0, 0, 0]),
 
@@ -95,6 +99,16 @@ if __name__ == '__main__':
 
     # Interacting with the gym environment
     for _ in tqdm.tqdm(range(5000)):
+
+        spawnNumber = random.randint(1, 1000)
+        if spawnNumber == 1:
+            spawnDistance = random.uniform(0.5, 30)
+            spawnOffset = random.randint(-5, 5 )
+            spawnRotation = random.randint(0, 360)
+            spawnScale = random.uniform(0.5, 2)
+            randomObjects = [StaticBlock("Random", "BarricadaNew", observation.sector + spawnDistance, spawnOffset, [2*spawnScale,2*spawnScale,2*spawnScale], [270, spawnRotation, 0])]
+            env.setothercars(randomObjects)
+            print("Spawn")
         action = agent(observation)
         last_observation = observation
         observation, reward, terminated, truncated, info = env.step(action)
