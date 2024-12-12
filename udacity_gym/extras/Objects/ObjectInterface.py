@@ -37,3 +37,15 @@ class ObjectInterface(ABC):
     @abstractmethod
     def GetRotation(self):
         pass
+
+    @abstractmethod
+    def GetWaitingPoints(self):
+        pass
+
+    @abstractmethod
+    def GetWaypoints(self):
+        pass
+
+    @abstractmethod
+    def GetLayer(self):
+        pass

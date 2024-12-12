@@ -3,14 +3,16 @@ from .ObjectInterface import ObjectInterface
 
 
 class MovingObject(ObjectInterface):
-    def __init__(self, Name, Prefab, Speed, Offset, SpawnPoint, ScaleVektor, Rotation):
+    def __init__(self, Name, Prefab, Speed, SpawnPoint, Offset, ScaleVektor, Rotation, Waypoints, Layer):
         self.Name = Name
-        self.Speed = Speed
-        self.Offset = Offset
-        self.SpawnPoint = SpawnPoint
         self.Prefab = Prefab
+        self.Speed = Speed
+        self.SpawnPoint = SpawnPoint
+        self.Offset = Offset
         self.ScaleVektor = ScaleVektor
         self.Rotation = Rotation
+        self.Waypoints = Waypoints
+        self.Layer = Layer
 
     def GetCommand(self):
         return "spawn_car"
@@ -22,15 +24,20 @@ class MovingObject(ObjectInterface):
         return self.Name
     def GetSpeed(self):
         return self.Speed
+    def GetScaleVektor(self):
+        return self.ScaleVektor
     def GetSpawnPoint(self):
         return self.SpawnPoint
     def GetOffset(self):
         return self.Offset
-    def GetScaleVektor(self):
-        return self.ScaleVektor
-
     def GetRotation(self):
         return self.Rotation
+    def GetWaitingPoints(self):
+        return []
+    def GetWaypoints(self):
+        return  self.Waypoints
+    def GetLayer(self):
+        return self.Layer
 
 
     def GetMessage(self):
@@ -38,10 +45,13 @@ class MovingObject(ObjectInterface):
             "command": self.GetCommand(),
             "name": self.GetName(),
             "speed": self.GetSpeed(),
-            "offset": self.GetOffset(),
             "spawn_point": self.GetSpawnPoint(),
-            "prefab_name": self.GetPrefabName(),
+            "offset": self.GetOffset(),
             "scale_Vektor": self.GetScaleVektor(),
-            "rotation": self.GetRotation()
-            }
+            "prefab_name": self.GetPrefabName(),
+            "rotation": self.GetRotation(),
+            "waitingPoints": self.GetWaitingPoints(),
+            "waypoints": self.GetWaypoints(),
+            "layer": self.GetLayer(),
+        }
 

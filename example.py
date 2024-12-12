@@ -38,24 +38,28 @@ if __name__ == '__main__':
     weather = "sunny"
 
     objects = [
-        MovingObject("Car1", "Dummy",4, 3, 20, [1,1,1], [0,0,0] ),
-        MovingObject("Car1", "Bus", -2, 2, 7, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "Bus", 4, 2, 7, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "Bus", -2, 2, 10, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "Bus", -2, 2, 15, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "Bus", -2, 2, 20, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "Bus", -2, 2, 3, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "CarBlack", 3, 5, 3, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "Bus", -2, 2, 8, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "Dummy", -2, 3, 25, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "Dummy", -2, 3, 28, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Bus", -6, [2, 0, 0], 3, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Bus", -6, [2, 0, 0], 5, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Bus", -6, [2, 0, 0], 8, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "CarBlack", -6, [2, 0.4, 0], 9, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarRed", -6, [2, 0.4, 0], 10, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarBlack", -6, [2, 0.4, 0], 11, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarBlue", -6, [2, 0.4, 0], 12, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Bus", -6, [2, 0, 0], 14, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "CarBlack", -6, [2, 0.4, 0], 15.5, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Bus", -6, [2, 0, 0], 17, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Bus", -6, [2, 0, 0], 18.5, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "Dummy", -6, [2, 0, 0], 21, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Dummy", -6, [2, 0, 0], 24, [1, 1, 1], [0, 0, 0]),
 
-        MovingObject("Car1", "CarBlack", 3, 3, 3, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "CarBlue", 3, 3, 4, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "CarRed", 3, 3, 5, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Dummy", 5, [2, 0, 0], 20, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "Bus", 5, [2, 0, 0], 7, [8, 8, 8], [0, 90, 0]),
+        MovingObject("Car1", "CarBlack", 5, [2, 0.4, 0], 3, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarBlue", 5, [2, 0.4, 0], 4, [1, 1, 1], [0, 0, 0]),
+        MovingObject("Car1", "CarRed", 5, [2, 0.4, 0], 5, [1, 1, 1], [0, 0, 0]),
 
-        StaticBlock("Block1", "BarricadaNew", 4.5, 7, [2,2,2], [270, 0, 0]),
-        StaticBlock("Block2", "House",20.5, -4, [0.1, 0.3, 0.1], [0, 0, 0])
+        StaticBlock("Block1", "BarricadaNew", 4.5, [5, 0, 0], [2, 2, 2], [270, 0, 0]),
+        StaticBlock("Block2", "House", 20.5, [-4, 0, 0], [0.1, 0.3, 0.1], [0, 0, 0])
     ]
 
     log_directory = pathlib.Path(f"udacity_dataset_lake_12_12_2/{track}_{weather}_{daytime}")
