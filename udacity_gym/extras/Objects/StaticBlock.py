@@ -35,6 +35,9 @@ class StaticBlock(ObjectInterface):
     def GetRotation(self):
         return self.Rotation
 
+    def GetHumanBehavior(self):
+        return None
+
     def GetMessage(self):
         return {
             "command": self.GetCommand(),

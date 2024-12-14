@@ -9,9 +9,12 @@ from typing import List
 from PIL import Image
 from enum import Enum
 
+from udacity_gym.extras.Objects import TrafficLightInterface, ControlTrafficManager
 from udacity_gym.extras.Objects.MovingObject import MovingObject
 from udacity_gym.extras.Objects.ObjectInterface import ObjectInterface
 from udacity_gym.extras.Objects.StaticBlock import StaticBlock
+from udacity_gym.extras.Objects.TrafficLightCommand import TrafficLightCommand
+from udacity_gym.extras.Objects.ControlTrafficManager import ControlTrafficManager
 from udacity_gym.global_manager import get_simulator_state
 from udacity_gym.logger import CustomLogger
 from udacity_gym.observation import UdacityObservation
@@ -309,14 +312,11 @@ class UdacityExecutor:
             self.logger.debug(f"Prepared spawn cars message: {send_message}")
             self.send_message(send_message, self.spawner_sock)
 
-    def send_spawn_cars(self, speedPerCar, start_positions):
-        spawn_cars_message = {
-            "command": "spawn_cars",
-            "speedPerCar": speedPerCar,
-            "start_positions": start_positions
-        }
-        self.logger.debug(f"Prepared spawn cars message: {spawn_cars_message}")
-        self.send_message(spawn_cars_message, self.spawner_sock)
+    def send_Traffic_Light(self, objects: List[TrafficLightInterface]):
+        for object in objects:
+            send_message = object.GetMessage()
+            self.logger.debug(f"Prepared spawn cars message: {send_message}")
+            self.send_message(send_message, self.events_sock)
 
     def on_sim_paused(self):
         self.sim_state['sim_state'] = SimStates.PAUSED
@@ -391,10 +391,17 @@ if __name__ == '__main__':
 
     test = [
         #MovingObject("Car1", "Human", 2, 1, [0,0,0], [1, 1, 1], [0, 0, 0], "Waypoints Walker", "Road"),
-        #MovingObject("Car1", "CarBlue", 5, 1, [2, 0.4, 0], [1, 1, 1], [0, 0, 0], "Waypoints 2 Car", "Road"),
-        MovingObject("Car1", "CarRed", -5, 5, [2, 0.4, 0], [1, 1, 1], [0, 0, 0], "Waypoints 2 Car", "Road"),
+        MovingObject("Car1", "CarBlue", 5, 1, [2, 0.4, 0], [1, 1, 1], [0, 0, 0], "Waypoints 2 Car", "Road", 0),
+        MovingObject("Car2", "CarRed", -5, 5, [2, 0.4, 0], [1, 1, 1], [0, 0, 0], "Waypoints 2 Car", "Road", 25),
     ]
     sim_executor.send_spawn_objects(test)
+    traffic = [
+        # TrafficLightCommand("Light1", "Green"),
+        # TrafficLightCommand("Car2", "Yellow"),
+
+        ControlTrafficManager("LightManager", [{"Name":"Rechts", "TrafficLights": ["Car", "Car3"], "PhaseStartTime": 2, "PhaseActiveTime": 5, "PhaseEndTime": 2}, {"Name":"Geradeaus", "TrafficLights": ["Car2"], "PhaseStartTime": 2, "PhaseActiveTime": 10, "PhaseEndTime": 2}], 1)
+    ]
+    sim_executor.send_Traffic_Light(traffic)
     try:
         while True:
             time.sleep(1)

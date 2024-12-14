@@ -49,3 +49,7 @@ class ObjectInterface(ABC):
     @abstractmethod
     def GetLayer(self):
         pass
+
+    @abstractmethod
+    def GetHumanBehavior(self):
+        pass

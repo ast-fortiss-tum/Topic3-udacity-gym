@@ -3,7 +3,7 @@ from .ObjectInterface import ObjectInterface
 
 
 class MovingObject(ObjectInterface):
-    def __init__(self, Name, Prefab, Speed, SpawnPoint, Offset, ScaleVektor, Rotation, Waypoints, Layer):
+    def __init__(self, Name, Prefab, Speed, SpawnPoint, Offset, ScaleVektor, Rotation, Waypoints, Layer, HumanBehavior):
         self.Name = Name
         self.Prefab = Prefab
         self.Speed = Speed
@@ -13,6 +13,7 @@ class MovingObject(ObjectInterface):
         self.Rotation = Rotation
         self.Waypoints = Waypoints
         self.Layer = Layer
+        self.HumanBehavior = HumanBehavior
 
     def GetCommand(self):
         return "spawn_car"
@@ -38,7 +39,8 @@ class MovingObject(ObjectInterface):
         return  self.Waypoints
     def GetLayer(self):
         return self.Layer
-
+    def GetHumanBehavior(self):
+        return self.HumanBehavior
 
     def GetMessage(self):
         return {
@@ -53,5 +55,6 @@ class MovingObject(ObjectInterface):
             "waitingPoints": self.GetWaitingPoints(),
             "waypoints": self.GetWaypoints(),
             "layer": self.GetLayer(),
+            "humanBehavior": self.GetHumanBehavior(),
         }
 
