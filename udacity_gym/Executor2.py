@@ -390,21 +390,35 @@ if __name__ == '__main__':
     #sim_executor.send_spawn_objects(objects)
 
     test = [
-        #MovingObject("Car1", "Human", 2, 1, [0,0,0], [1, 1, 1], [0, 0, 0], "Waypoints Walker", "Road"),
-        MovingObject("Car1", "CarBlue", 5, 1, [2, 0.4, 0], [1, 1, 1], [0, 0, 0], "Waypoints 2 Car", "Road", 0),
-        MovingObject("Car2", "CarRed", -5, 5, [2, 0.4, 0], [1, 1, 1], [0, 0, 0], "Waypoints 2 Car", "Road", 25),
+        MovingObject("Car1", "Human",5, 1, [0, 0, 0], [1, 1, 1], [0, 0, 0], ["Human", "Human1", "Human", "Human1"], "Road", 0),
+        #MovingObject("Car1", "CarBlue", 5, 1, [2, 0.4, 0], [1, 1, 1], [0, 0, 0], ["Waypoints 2 Car"], "Road", 0),
+        # MovingObject("Car2", "CarRed", -5, 5, [2, 0.4, 0], [1, 1, 1], [0, 0, 0], ["Waypoints 2 Car"], "Road", 25),
+        MovingObject("Car1", "CarBlue", 5, 1, [0, 0.4, 0], [1, 1, 1], [0, 0, 0],
+                     ["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
+        MovingObject("Car1", "CarBlue", 5, 12, [0, 0.4, 0], [1, 1, 1], [0, 0, 0],
+                     ["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
+        MovingObject("Car1", "CarRed", 5, 10, [0, 0.4, 0], [1, 1, 1], [0, 0, 0], ["MainStreet1", "Smal2", "Smal1 reverse","MainStreet1"], "Road", 0),
     ]
-    sim_executor.send_spawn_objects(test)
     traffic = [
         # TrafficLightCommand("Light1", "Green"),
         # TrafficLightCommand("Car2", "Yellow"),
 
-        ControlTrafficManager("LightManager", [{"Name":"Rechts", "TrafficLights": ["Car", "Car3"], "PhaseStartTime": 2, "PhaseActiveTime": 5, "PhaseEndTime": 2}, {"Name":"Geradeaus", "TrafficLights": ["Car2"], "PhaseStartTime": 2, "PhaseActiveTime": 10, "PhaseEndTime": 2}], 1)
+       # ControlTrafficManager("LightManager", [{"Name":"Rechts", "TrafficLights": ["Car", "Car3"], "PhaseStartTime": 2, "PhaseActiveTime": 5, "PhaseEndTime": 2}, {"Name":"Geradeaus", "TrafficLights": ["Car2"], "PhaseStartTime": 2, "PhaseActiveTime": 10, "PhaseEndTime": 2}], 1)
     ]
-    sim_executor.send_Traffic_Light(traffic)
+
+
+    def send_commands():
+        sim_executor.send_spawn_objects(test)
+        sim_executor.send_Traffic_Light(traffic)
+
+
     try:
+        send_commands()
         while True:
-            time.sleep(1)
+            input("Press Enter to resend commands or Ctrl+C to stop the program...")
+            send_commands()
     except KeyboardInterrupt:
         sim_executor.close()
         print("UdacityExecutor stopped")
+
+
