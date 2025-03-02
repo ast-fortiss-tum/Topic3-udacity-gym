@@ -53,3 +53,8 @@ class ObjectInterface(ABC):
     @abstractmethod
     def GetHumanBehavior(self):
         pass
+
+    @abstractmethod
+    def GetTrackDataList(self):
+        pass
+

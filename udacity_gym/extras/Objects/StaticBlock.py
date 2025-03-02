@@ -38,6 +38,9 @@ class StaticBlock(ObjectInterface):
     def GetHumanBehavior(self):
         return None
 
+    def GetTrackDataList(self):
+        return []
+
     def GetMessage(self):
         return {
             "command": self.GetCommand(),

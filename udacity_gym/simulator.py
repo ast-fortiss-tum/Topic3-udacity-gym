@@ -20,6 +20,7 @@ SIM_STATE_RUNNING = 'running'
 # Enums für Track, Wetter und Tageszeit
 class TrackName(Enum):
     LAKE = 'lake'
+    CITY = 'city'
     JUNGLE = 'jungle'
     MOUNTAIN = 'mountain'
     ROAD_GENERATOR = 'road_generator'

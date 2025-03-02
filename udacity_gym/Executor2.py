@@ -10,6 +10,8 @@ from PIL import Image
 from enum import Enum
 
 from udacity_gym.extras.Objects import TrafficLightInterface, ControlTrafficManager
+from udacity_gym.extras.Objects.AutonomousCar import AutonomousCar
+from udacity_gym.extras.Objects.GenerateTrack import GenerateTrack
 from udacity_gym.extras.Objects.MovingObject import MovingObject
 from udacity_gym.extras.Objects.ObjectInterface import ObjectInterface
 from udacity_gym.extras.Objects.StaticBlock import StaticBlock
@@ -385,19 +387,31 @@ if __name__ == '__main__':
     print("Starting UdacityExecutor")
     sim_executor = UdacityExecutor()
     sim_executor.start()
-    # sim_executor.send_track(track="lake", daytime="day", weather="sunny")
+    # sim_executor.send_track(track="city", daytime="day", weather="sunny")
 
     #sim_executor.send_spawn_objects(objects)
 
     test = [
-        MovingObject("Car1", "Human",5, 1, [0, 0, 0], [1, 1, 1], [0, 0, 0], ["Human", "Human1", "Human", "Human1"], "Road", 0),
-        #MovingObject("Car1", "CarBlue", 5, 1, [2, 0.4, 0], [1, 1, 1], [0, 0, 0], ["Waypoints 2 Car"], "Road", 0),
-        # MovingObject("Car2", "CarRed", -5, 5, [2, 0.4, 0], [1, 1, 1], [0, 0, 0], ["Waypoints 2 Car"], "Road", 25),
-        MovingObject("Car1", "CarBlue", 5, 1, [0, 0.4, 0], [1, 1, 1], [0, 0, 0],
-                     ["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
-        MovingObject("Car1", "CarBlue", 5, 12, [0, 0.4, 0], [1, 1, 1], [0, 0, 0],
-                     ["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
-        MovingObject("Car1", "CarRed", 5, 10, [0, 0.4, 0], [1, 1, 1], [0, 0, 0], ["MainStreet1", "Smal2", "Smal1 reverse","MainStreet1"], "Road", 0),
+        # AutonomousCar(["MainStreet1", "Smal2", "Smal1 reverse","MainStreet1"]),
+        GenerateTrack([
+    {
+      "roadWidth": 12.5,
+      "laneWidth": 3.0,
+      "coords": [
+        { "x": 0.0, "y": 0.0, "z": 0.0 },
+        { "x": 100.0, "y": 0.0, "z": 0.0 },
+        { "x": 100.0, "y": 0.0, "z": 100.0 },
+        { "x": 0.0, "y": 0.0, "z": 100.0},
+        { "x": 0.0, "y": 0.0, "z": 0.0 },
+      ]
+    }
+  ], 25
+        ),
+
+        #MovingObject("Car1", "CarBlue", 5, 3, [0, 0.4, 0], [1, 1, 1], [0, 0, 0], ["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
+        #MovingObject("Car1", "CarRed", 5, 3, [0, 0.4, 0], [1, 1, 1], [0, 0, 0], ["MainStreet1", "Smal2", "Smal1 reverse","MainStreet1"], "Road", 0),
+        #MovingObject("Car1", "Bus", 5, 2, [0.5, 0, 0], [8, 8, 8], [0, 90, 0],
+         #            ["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
     ]
     traffic = [
         # TrafficLightCommand("Light1", "Green"),

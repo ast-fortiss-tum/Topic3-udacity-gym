@@ -33,33 +33,16 @@ if __name__ == '__main__':
     assert pathlib.Path(simulator_exe_path).exists(), f"Simulator binary not found at {simulator_exe_path}"
 
     # Track settings
-    track = "lake"
+    track = "city"
     daytime = "day"
     weather = "sunny"
 
     objects = [
-        MovingObject("Car1", "Bus", -6, [2, 0, 0], 3, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "Bus", -6, [2, 0, 0], 5, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "Bus", -6, [2, 0, 0], 8, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "CarBlack", -6, [2, 0.4, 0], 9, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "CarRed", -6, [2, 0.4, 0], 10, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "CarBlack", -6, [2, 0.4, 0], 11, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "CarBlue", -6, [2, 0.4, 0], 12, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "Bus", -6, [2, 0, 0], 14, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "CarBlack", -6, [2, 0.4, 0], 15.5, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "Bus", -6, [2, 0, 0], 17, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "Bus", -6, [2, 0, 0], 18.5, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "Dummy", -6, [2, 0, 0], 21, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "Dummy", -6, [2, 0, 0], 24, [1, 1, 1], [0, 0, 0]),
 
-        MovingObject("Car1", "Dummy", 5, [2, 0, 0], 20, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "Bus", 5, [2, 0, 0], 7, [8, 8, 8], [0, 90, 0]),
-        MovingObject("Car1", "CarBlack", 5, [2, 0.4, 0], 3, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "CarBlue", 5, [2, 0.4, 0], 4, [1, 1, 1], [0, 0, 0]),
-        MovingObject("Car1", "CarRed", 5, [2, 0.4, 0], 5, [1, 1, 1], [0, 0, 0]),
-
-        StaticBlock("Block1", "BarricadaNew", 4.5, [5, 0, 0], [2, 2, 2], [270, 0, 0]),
-        StaticBlock("Block2", "House", 20.5, [-4, 0, 0], [0.1, 0.3, 0.1], [0, 0, 0])
+        MovingObject("Car1", "CarBlue", 5, 1, [0, 0.4, 0], [1, 1, 1], [0, 0, 0],["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
+        # MovingObject("Car1", "CarBlue", 5, 3, [0, 0.4, 0], [1, 1, 1], [0, 0, 0], ["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
+        MovingObject("Car1", "CarRed", 5, 3, [0, 0.4, 0], [1, 1, 1], [0, 0, 0],["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
+        MovingObject("Car1", "Bus", 5, 2, [0.5, 0, 0], [8, 8, 8], [0, 90, 0],["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
     ]
 
     log_directory = pathlib.Path(f"udacity_dataset_lake_12_12_2/{track}_{weather}_{daytime}")
@@ -103,16 +86,7 @@ if __name__ == '__main__':
 
     # Interacting with the gym environment
     for _ in tqdm.tqdm(range(5000)):
-
-        spawnNumber = random.randint(1, 1000)
-        if spawnNumber == 1:
-            spawnDistance = random.uniform(0.5, 30)
-            spawnOffset = random.randint(-5, 5 )
-            spawnRotation = random.randint(0, 360)
-            spawnScale = random.uniform(0.5, 2)
-            randomObjects = [StaticBlock("Random", "BarricadaNew", observation.sector + spawnDistance, spawnOffset, [2*spawnScale,2*spawnScale,2*spawnScale], [270, spawnRotation, 0])]
-            env.setothercars(randomObjects)
-            print("Spawn")
+        print(observation.steering_angle, observation.throttle, observation.speed)
         action = agent(observation)
         last_observation = observation
         observation, reward, terminated, truncated, info = env.step(action)
