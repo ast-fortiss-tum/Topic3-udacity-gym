@@ -12,7 +12,7 @@ if __name__ == '__main__':
     host = "127.0.0.1"
     port = 4567
     # simulator_exe_path = "/home/banana/projects/self-driving-car-sim/Builds/udacity_linux.x86_64"
-    simulator_exe_path = "../builds/udacity.x86_64"
+    simulator_exe_path = "Linux Build/Linux Build.x86_64"
     assert pathlib.Path(simulator_exe_path).exists(), f"Simulator binary not found at {simulator_exe_path}"
 
     # Track settings
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     )
 
     # Interacting with the gym environment
-    for _ in tqdm.tqdm(range(5000)):
+    for _ in tqdm.tqdm(range(1500)):
         action = agent(observation)
         last_observation = observation
         observation, reward, terminated, truncated, info = env.step(action)

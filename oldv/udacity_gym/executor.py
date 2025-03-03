@@ -6,15 +6,18 @@ from threading import Thread
 
 import PIL
 import eventlet
+
 eventlet.monkey_patch()
 import numpy as np
 from PIL import Image
 from flask import Flask
 from flask_socketio import SocketIO
-
+import time
+import csv
 from .action import UdacityAction
 from .logger import CustomLogger
 from .observation import UdacityObservation
+
 
 class UdacityExecutor:
     # TODO: avoid cycles
@@ -42,17 +45,23 @@ class UdacityExecutor:
         self.sio.on('episode_event')(self.on_episode_event)
         self.sio.on('sim_paused')(self.on_sim_paused)
         self.sio.on('sim_resumed')(self.on_sim_resumed)
+        self.latency_file = "latency_oldV.csv"
+        with open(self.latency_file, mode='w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["timestamp", "event", "latency"])
 
         # Simulator logging
         self.logger = CustomLogger(str(self.__class__))
         # Simulator
-        from .simulator import get_simulator_state
-        self.sim_state = get_simulator_state()
+        from .simulator import simulator_state
+        self.sim_state = simulator_state
         # Manage connection in separate process
         self.client_thread = Process(target=self._start_server)
         self.client_thread.daemon = True
 
     def on_telemetry(self, data):
+        timestamp = time.time()
+        self.log_latency('receive', timestamp)
 
         # self.logger.info(f"Received data from udacity client: {data}")
         # TODO: check data image, verify from sender that is not empty
@@ -109,21 +118,41 @@ class UdacityExecutor:
         self.sim_state['track'] = None
 
     def on_sim_paused(self, data):
+        timestamp = time.time()
+
+        self.log_latency('receive', timestamp)
+
         self.sim_state['sim_state'] = 'paused'
 
     def on_sim_resumed(self, data):
+        timestamp = time.time()
+
+        self.log_latency('receive', timestamp)
+
         # TODO: change 'running' with ENUM
         self.sim_state['sim_state'] = 'running'
 
     def on_episode_metrics(self, data):
+        timestamp = time.time()
+
+        self.log_latency('receive', timestamp)
+
         self.logger.info(f"episode metrics {data}")
         self.sim_state['episode_metrics'] = data
 
     def on_episode_events(self, data):
+        timestamp = time.time()
+
+        self.log_latency('receive', timestamp)
+
         self.logger.info(f"episode events {data}")
         self.sim_state['events'] += [data]
 
     def on_episode_event(self, data):
+        timestamp = time.time()
+
+        self.log_latency('receive', timestamp)
+
         self.logger.info(f"episode event {data}")
         self.sim_state['events'] += [data]
 
@@ -139,15 +168,29 @@ class UdacityExecutor:
                 },
                 skip_sid=True,
             )
+            timestamp = time.time()
+            self.log_latency('send', timestamp)
             eventlet.sleep(0)
 
     def send_pause(self):
+        timestamp = time.time()
+
+        self.log_latency('send', timestamp)
+
         self.sio.emit("pause_sim", skip_sid=True)
 
     def send_resume(self):
+        timestamp = time.time()
+
+        self.log_latency('send', timestamp)
+
         self.sio.emit("resume_sim", skip_sid=True)
 
     def send_track(self, track, weather, daytime):
+        timestamp = time.time()
+
+        self.log_latency('send', timestamp)
+
         self.sio.emit("end_episode", skip_sid=True)
         self.sio.emit("start_episode", data={
             "track_name": track,
@@ -164,6 +207,12 @@ class UdacityExecutor:
 
     def close(self):
         self.sio.stop()
+
+    def log_latency(self, event, timestamp):
+        """Logs latency data to a CSV file."""
+        with open(self.latency_file, mode='a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([timestamp, event, time.time() - timestamp])
 
 
 if __name__ == '__main__':
