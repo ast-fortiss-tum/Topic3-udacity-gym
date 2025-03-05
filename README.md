@@ -4,15 +4,18 @@ add [New Build](https://drive.google.com/file/d/1jisoaR3wTfmoE1PVaL2i01BOuvQDGBc
 
 ```shell
 python oldv/example.py
+python newv/example.py
+python plot-latency.py
 ```
-run oldv/example.py <br>
-run newv/example.py <br>
-run plot-latency.py<br>
 <br>
 
 
 **CPU-Usage PLOT :** <br>
-run oldv/cpu-example.py <br>
-run newv/cpu-example.py <br>
-run plot-cpu.py<br>
+
+```shell
+python oldv/cpu-example.py
+python newv/cpu-example.py
+python plot-cpu.py
+```
+
 
