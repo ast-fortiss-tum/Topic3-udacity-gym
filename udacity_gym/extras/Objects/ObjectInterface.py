@@ -58,3 +58,10 @@ class ObjectInterface(ABC):
     def GetTrackDataList(self):
         pass
 
+    @abstractmethod
+    def GetCarId(self):
+        pass
+
+    @abstractmethod
+    def GetAutonomous(self):
+        pass

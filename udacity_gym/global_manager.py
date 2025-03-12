@@ -19,7 +19,7 @@ def get_simulator_state():
         manager = get_manager()
         _simulator_state = manager.dict({
             'observation': None,
-            'action': UdacityAction(0.0, 0.0),
+            'action': UdacityAction(0,0.0, 0.0, ""),
             'paused': False,
             'track': "lake",
             'events': [],

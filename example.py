@@ -4,7 +4,7 @@ import random
 import time
 import tqdm
 from udacity_gym import UdacitySimulator, UdacityGym, UdacityAction
-from udacity_gym.agent import PIDUdacityAgent, EndToEndLaneKeepingAgent
+from udacity_gym.agent import PIDUdacityAgent  # oder einen anderen Agenten-Typ
 from udacity_gym.agent_callback import LogObservationCallback, PauseSimulationCallback, ResumeSimulationCallback
 
 import csv
@@ -17,37 +17,20 @@ from udacity_gym.extras.Objects.StaticBlock import StaticBlock
 
 if __name__ == '__main__':
 
-    # Configuration settings
+    # ------------------ Konfiguration ------------------
     host = "127.0.0.1"
     command_port = 55002
     telemetry_port = 56002
     events_port = 57002
     other_cars_port = 58002
-    # simulator_exe_path = "/home/banana/projects/self-driving-car-sim/Builds/udacity_linux.x86_64"
-
-    # TCP Port
     simulator_exe_path = r"C:\Source\Auto\Windows Build\self_driving_car_nanodegree_program.exe"
-
-    # Io Port
-    # simulator_exe_path = r"C:\Source\Auto\beta_simulator_windows\beta_simulator.exe"
     assert pathlib.Path(simulator_exe_path).exists(), f"Simulator binary not found at {simulator_exe_path}"
 
-    # Track settings
     track = "city"
     daytime = "day"
     weather = "sunny"
 
-    objects = [
-
-        MovingObject("Car1", "CarBlue", 5, 1, [0, 0.4, 0], [1, 1, 1], [0, 0, 0],["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
-        # MovingObject("Car1", "CarBlue", 5, 3, [0, 0.4, 0], [1, 1, 1], [0, 0, 0], ["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
-        MovingObject("Car1", "CarRed", 5, 3, [0, 0.4, 0], [1, 1, 1], [0, 0, 0],["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
-        MovingObject("Car1", "Bus", 5, 2, [0.5, 0, 0], [8, 8, 8], [0, 90, 0],["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"], "Road", 0),
-    ]
-
-    log_directory = pathlib.Path(f"udacity_dataset_lake_12_12_2/{track}_{weather}_{daytime}")
-
-    # Creating the simulator wrapper
+    # ------------------ Simulator und Environment erstellen ------------------
     simulator = UdacitySimulator(
         sim_exe_path=simulator_exe_path,
         host=host,
@@ -57,143 +40,78 @@ if __name__ == '__main__':
         other_cars_port=other_cars_port
     )
 
-    # Creating the gym environment
-    env = UdacityGym(
-        simulator=simulator,
-    )
+    env = UdacityGym(simulator=simulator)
     simulator.start()
-    observation, _ = env.reset(track=f"{track}",
-                               weather=f"{weather}",
-                               daytime=f"{daytime}")
+    observation, _ = env.reset(track=track, weather=weather, daytime=daytime)
 
-    # Wait for environment to set up
+    # Warte, bis das Environment vollständig eingerichtet ist
     while not observation or not observation.is_ready():
         observation = env.observe()
         print("Waiting for environment to set up...")
         time.sleep(1)
 
-    env.setothercars(objects)
+    # ------------------ Spawn von mehreren Autos und zugehörigen Agenten ------------------
+    num_cars_to_spawn = 3  # Anzahl der zu spawnenden Autos
+    car_agents = {}  # Dictionary: Schlüssel = Car-Name, Wert = Agent
+    car_objects = []  # Liste der MovingObject-Instanzen für den Spawn-Befehl
+    possible_car_prefabs = ["Objects/CarBlue", "Objects/CarRed", "Objects/CarBlack"]
 
-    log_observation_callback = LogObservationCallback(log_directory)
-    agent = PIDUdacityAgent(
-        kp=0.05, kd=0.8, ki=0.000001,
-        # kp=0.12, kd=1.2, ki=0.000001,
-        before_action_callbacks=[],
-        after_action_callbacks=[log_observation_callback],
-    )
+    for i in range(num_cars_to_spawn):
+        car_name = f"Car_{i + 1}"
+        prefab = random.choice(possible_car_prefabs)
+        # Parameter (Platzhalter – passe diese Werte an deine Bedürfnisse an)
+        spawn_point = 5  # z. B. als Start-Wegpunktindex
+        speed = random.uniform(10, 50)
+        offset = [0, 0.4, 0]
+        scale = [1, 1, 1]
+        rotation = [0, 0, 0]
+        waypoints = ["MainStreet1", "Smal2", "Smal1 reverse", "MainStreet1"]
+        layer = "Road"
+        human_behavior = 0  # Beispiel: 0 = kein menschliches Verhalten
 
-    #agent = EndToEndLaneKeepingAgent()
+        # Erzeuge ein MovingObject für das Auto
+        moving_obj = MovingObject(car_name, prefab, spawn_point, speed, offset, scale, rotation, waypoints, layer,
+                                  human_behavior)
+        car_objects.append(moving_obj)
 
-    # Interacting with the gym environment
-    for _ in tqdm.tqdm(range(5000)):
-        print(observation.steering_angle, observation.throttle, observation.speed)
-        action = agent(observation)
-        last_observation = observation
-        observation, reward, terminated, truncated, info = env.step(action)
+        # Erzeuge einen Agenten, der dieses Auto steuern soll (hier ein PID-Agent)
+        agent = PIDUdacityAgent(
+            kp=0.05, kd=0.8, ki=0.000001,
+            before_action_callbacks=[],
+            after_action_callbacks=[]
+        )
+        car_agents[car_name] = agent
 
-        while observation.time == last_observation.time:
-            observation = env.observe()
-            time.sleep(0.0025)
+    # Sende den Spawn-Befehl an den Simulator, sodass alle Autos erstellt werden
+    env.setothercars(car_objects)
+    print(f"Spawned {num_cars_to_spawn} cars.")
 
-    if info:
-        json.dump(info, open(log_directory.joinpath("info.json"), "w"))
+    # ------------------ Haupt-Simulationsloop ------------------
+    # Wir gehen hier davon aus, dass env.get_other_observations() ein Dictionary zurückgibt,
+    # in dem die Beobachtungen der gespawnten Autos unter ihrem Namen (oder einer eindeutigen carId)
+    # abgelegt werden. (Diese Methode muss ggf. in UdacityGym implementiert werden.)
+    while True:
+        # Beobachtung des Ego-Autos (falls benötigt)
+        observation = env.observe()
 
-    log_observation_callback.save()
-    simulator.close()
-    env.close()
-    print("Experiment concluded.")
+        # Beobachtungen der anderen Autos abrufen
+        other_observations = env.get_other_observations()  # Erwartet: { car_name: observation, ... }
 
-    # Integrate the latency calculation and plotting code
-    def calculate_latencies(input_csv, output_csv):
-        latencies = []
-
-        # Read existing latencies from output_csv if it exists
-        if pathlib.Path(output_csv).exists():
-            with open(output_csv, 'r') as outfile:
-                reader = csv.reader(outfile)
-                next(reader)  # Skip header
-                for row in reader:
-                    if row and row[0]:
-                        latencies.append(float(row[0]))
-
-        # Now read new latencies from input_csv
-        with open(input_csv, 'r') as infile:
-            reader = csv.reader(infile)
-            next(reader)  # Skip header
-
-            send_event = None
-            for row in reader:
-                timestamp, event, _ = float(row[0]), row[1], row[2]
-
-                if event == 'send':
-                    send_event = timestamp
-                elif event == 'receive' and send_event is not None:
-                    # Calculate latency as the difference between send and receive
-                    latency = (timestamp - send_event) * 1000  # Convert to milliseconds
-                    latencies.append(latency)
-                    send_event = None  # Reset for the next send event
-
-        # Calculate average and standard deviation of latencies
-        if latencies:
-            avg_latency = statistics.mean(latencies)
-            stddev_latency = statistics.stdev(latencies) if len(latencies) > 1 else 0.0
-        else:
-            avg_latency = stddev_latency = 0.0
-
-        # Write latencies and statistics to the output CSV
-        with open(output_csv, 'w', newline='') as outfile:
-            writer = csv.writer(outfile)
-            writer.writerow(["latency (ms)", "average latency (ms)", "stddev latency (ms)"])  # Header
-            for latency in latencies:
-                writer.writerow([latency, avg_latency, stddev_latency])
-
-        print(f"Latencies, average and standard deviation have been written to {output_csv}")
-
-    # Input and output CSV files
-    # Input and output CSV files
-    input_csv = log_directory.joinpath('latency_log.csv')
-    output_csv = log_directory.joinpath('latencies_with_stats.csv')
-
-    # Calculate latencies and update the CSV
-    if pathlib.Path(input_csv).exists():
-        calculate_latencies(input_csv, output_csv)
-    else:
-        print(f"No latency log file found at {input_csv}. Skipping latency calculation.")
-
-    if output_csv.exists():
-        df = pd.read_csv(output_csv)
-
-        # Extract the latency column
-        latency_df = df['latency (ms)']
-
-        # Create a histogram of the latencies
-        plt.figure(figsize=(12, 6))
-        plt.hist(latency_df, bins=50, color='blue', edgecolor='black', alpha=0.7)
-        plt.title('Latency Distribution Over Multiple Runs')
-        plt.xlabel('Latency (ms)')
-        plt.ylabel('Frequency')
-        plt.grid(True, linestyle='--', alpha=0.5)
-
-        # Save the histogram plot
-        histogram_plot_path = log_directory.joinpath('latency_histogram.png')
-        plt.savefig(histogram_plot_path)
-        plt.close()
-
-        print(f"Latency histogram saved to {histogram_plot_path}")
-
-        # Create a line plot showing latency over time
-        plt.figure(figsize=(12, 6))
-        plt.plot(latency_df, marker='o', linestyle='-', markersize=2)
-        plt.title('Latency Over Multiple Runs')
-        plt.xlabel('Sample Number')
-        plt.ylabel('Latency (ms)')
-        plt.grid(True, linestyle='--', alpha=0.5)
-
-        # Save the line plot
-        line_plot_path = 'latency_line_plot.png'
-        plt.savefig(line_plot_path)
-        plt.close()
-
-        print(f"Latency line plot saved to {line_plot_path}")
-    else:
-        print(f"No latency data available at {output_csv}. Skipping plotting.")
+        # Für jedes gespawnte Auto: Aktion berechnen und Befehl senden
+        for car_name, agent in car_agents.items():
+            if car_name in other_observations:
+                car_obs = other_observations[car_name]
+                # Der Agent berechnet die Aktion anhand der Beobachtung
+                action = agent(car_obs)
+                # Erstelle den Steuerbefehl – hier wird angenommen, dass die Observation auch ein Feld car_id enthält.
+                control_command = {
+                    "command": "send_control",
+                    "carId": car_obs.car_id,  # oder nutze den car_name, falls dies als ID genutzt wird
+                    "steering_angle": action.steering_angle,
+                    "throttle": action.throttle
+                }
+                # Sende den Steuerbefehl an den Simulator (die Methode send_control muss in UdacityGym implementiert sein)
+                env.send_control(control_command)
+            else:
+                print(f"No observation received yet for {car_name}.")
+        time.sleep(0.01)  # Passe die Schleifenfrequenz nach Bedarf an
