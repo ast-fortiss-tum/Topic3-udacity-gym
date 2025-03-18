@@ -438,11 +438,11 @@ if __name__ == '__main__':
     # Erzeuge ein paar Autos mit langsamer Geschwindigkeit (slow_speed)
     slow_speed = 1.0  # langsame Geschwindigkeit
     slow_test_cars = [
-        MovingObject("SlowCar1", "Car", 5, slow_speed, [0, 0.4, 0],
+        MovingObject("SlowCar1", "Car", 5, 1, [0, 0.4, 0],
                      [1, 1, 1], [0, 0, 0], [], "Road", 0, 0, 1,True),
-        MovingObject("SlowCar2", "Car", 5, slow_speed, [0, 0.4, 0],
+        MovingObject("SlowCar2", "Car", 5, 5, [0, 0.4, 0],
                      [1, 1, 1], [0, 0, 0], [], "Road", 0, 0, 2,True),
-        MovingObject("SlowCar3", "Car", 5, slow_speed, [0, 0.4, 0],
+        MovingObject("SlowCar3", "Car", 5, 10, [0, 0.4, 0],
                      [1, 1, 1], [0, 0, 0], [], "Road", 0, 0,3, True)
     ]
 
