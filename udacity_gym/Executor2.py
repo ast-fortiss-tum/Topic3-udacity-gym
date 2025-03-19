@@ -442,8 +442,8 @@ if __name__ == '__main__':
                      [1, 1, 1], [0, 0, 0], [], "Road", 0, 0, 1,True),
         MovingObject("SlowCar2", "Car", 5, 5, [0, 0.4, 0],
                      [1, 1, 1], [0, 0, 0], [], "Road", 0, 0, 2,True),
-        MovingObject("SlowCar3", "Car", 5, 10, [0, 0.4, 0],
-                     [1, 1, 1], [0, 0, 0], [], "Road", 0, 0,3, True)
+        MovingObject("SlowCar3", "CarBlue", 5, 10, [0, 0.4, 0],
+                     [1, 1, 1], [0, 0, 0], [], "Road", 0, 0,3, False)
     ]
 
     # Sende den Spawn-Befehl an den Simulator und erhalte die Antworten
